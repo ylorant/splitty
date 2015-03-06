@@ -1,0 +1,215 @@
+/* Base Styles */
+
+    #wrapper 
+    {
+        padding-left: 0;
+        -webkit-transition: all 0.5s ease;
+        -moz-transition: all 0.5s ease;
+        -o-transition: all 0.5s ease;
+        transition: all 0.5s ease;
+    }
+
+    #wrapper.toggled 
+    {
+        padding-left: 300px;
+    }
+
+    #timer-wrapper 
+    {
+        z-index: 1000;
+        position: fixed;
+        left: 300px;
+        width: 0;
+        height: 100%;
+        margin-left: -300px;
+        overflow-y: auto;
+        background: #121212;
+        color: #999;
+        -webkit-transition: all 0.5s ease;
+        -moz-transition: all 0.5s ease;
+        -o-transition: all 0.5s ease;
+        transition: all 0.5s ease;
+    }
+
+    #wrapper.toggled #timer-wrapper 
+    {
+        width: 300px;
+    }
+
+    #page-content-wrapper 
+    {
+        width: 100%;
+        position: absolute;
+        padding: 15px;
+    }
+
+    #wrapper.toggled #page-content-wrapper 
+    {
+        position: absolute;
+        margin-right: -300px;
+    }
+
+    /* Screen size is more than 768 pixels -> we show the timer by default */
+    @media(min-width:768px) {
+        #wrapper 
+        {
+            padding-left: 300px;
+        }
+
+        #wrapper.toggled 
+        {
+            padding-left: 0;
+        }
+
+        #timer-wrapper 
+        {
+            width: 300px;
+        }
+
+        #wrapper.toggled #timer-wrapper 
+        {
+            width: 0;
+        }
+
+        #page-content-wrapper 
+        {
+            padding: 20px;
+            position: relative;
+        }
+
+        #wrapper.toggled #page-content-wrapper 
+        {
+            position: relative;
+            margin-right: 0;
+        }
+    }
+
+    .text-justify
+    {
+        text-align: justify;
+    }
+
+/* Timer Styles */
+    
+    #timer-wrapper
+    {
+        font-family: "Calibri", "Roboto";
+    }
+
+    #timer-wrapper .timer-title
+    {
+        padding: 0px 20px;
+        padding-right: 80px;
+        height: 65px;
+        width: 300px;
+        position: relative;
+
+        line-height: 65px;
+    }
+
+    #timer-wrapper .timer-title #run-count
+    {
+        display: block;
+        position: absolute;
+        height: 65px;
+        width: 60px;
+        right: 20px;
+        top: 0px;
+
+        text-align: right;
+        line-height: 65px;
+    }
+
+    #timer-wrapper .timer-title span
+    {
+        display: inline-block;
+
+        line-height: 1.3em;
+        vertical-align: middle;
+    }
+
+    #timer-splits,
+    #timer-wrapper .timer-title,
+    #run-globals
+    {
+        width: 100%;
+        padding: 0px 20px;
+        border-collapse: separate;
+    }
+
+    #timer-splits
+    {
+        border-top: 1px solid #444;
+        border-bottom: 1px solid #444;
+    }
+
+    #timer-splits tr,
+    #run-globals tr
+    {
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+    }
+
+    #timer-splits tr.current
+    {
+        background: #444;
+        border-color: #444;
+        color: white;
+    }
+
+    #timer-splits tr td
+    {
+        text-align: right;
+    }
+
+    #timer-splits tr td:first-child
+    {
+        text-align: left;
+    }
+
+    #timer-splits tr td.time
+    {
+        border-right: 10px solid transparent;
+    }
+
+    #timer-wrapper .time.ahead.split-ahead { color: #15BC33; }
+    #timer-wrapper .time.ahead.split-late { color: #AEE711; }
+    #timer-wrapper .time.late.split-ahead { color: #E79D11; }
+    #timer-wrapper .time.late.split-late { color: #E71111; }
+    #timer-wrapper .time.split-gold { color: #FFDF00; }
+
+    #timer-splits tr td:first-child,
+    #run-globals tr td:first-child
+    {
+        width: 100%;
+    }
+
+    #run-globals
+    {
+        margin-top: 10px;
+    }
+
+    #run-globals tr td.time
+    {
+        border: 0px;
+        text-align: right;
+    }
+
+    #run-globals #global-time
+    {
+        font-size: 48px;
+        font-weight: bold;
+        text-align: right;
+    }
+
+/* Page Styles */
+
+.page
+{
+    display: none;
+}
+
+.page.active
+{
+    display: block;
+}
