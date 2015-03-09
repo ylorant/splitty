@@ -104,6 +104,11 @@ Actions.prototype.edit_timer_add_split = function()
 	
 }
 
+Actions.prototype.edit_timer_remove_split = function(el)
+{
+	$(el).parents(".timer-split").remove();
+}
+
 Actions.prototype.edit_timer_submit = function()
 {
 	var new_timer = null;
