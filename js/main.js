@@ -1,36 +1,38 @@
 //// ki.js extensions ////
 
-//Check if an element matches a selector
-$.prototype.matches = function(s)
-{
-  var el = this[0];
-  return (el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector).call(el, selector);
-};
-
 // Search for a selector in parents of the current node
 $.prototype.parents = function(q)
 {
 	var parents = [];
     var p = this[0].parentNode;
-    while (p !== null)
+    while (p !== document)
     {
-        if(typeof q == "undefined" || p.matches(q))
+        if(typeof q == "undefined" || $(p).is(q))
         	parents.push(p);
 
         p = p.parentNode;
     }
 
-    return parent; // returns an Array []
+    return parents; // returns an Array []
 }
 
 $.prototype.clone = function()
 {
-	return $(this.cloneNode(true));
+	return $(this[0].cloneNode(true));
 }
 
 //// end ki.js extensions ////
 
+/// Not ki.js but still useful functions ///
+
+var q = document.querySelector.bind(document);
+Element.prototype.q = Element.prototype.querySelector;
+
+/// end not ki.js but still useful functions ///
+
 var action_handler = null;
+
+window.current_timer = null;
 
 //Onload event - init everything
 $(function()

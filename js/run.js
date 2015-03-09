@@ -3,6 +3,8 @@ function Run(timer)
 	this.timer = timer;
 	this.elapsed = 0; // Number of milliseconds elapsed
 	this.start_time = null; // Instance of Date
+	
+	this.timer.run_count++;
 }
 
 Run.prototype.start = function()

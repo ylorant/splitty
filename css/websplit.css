@@ -93,7 +93,7 @@
     
     #timer-wrapper
     {
-        font-family: "Calibri", "Roboto";
+        font-family: "Roboto";
     }
 
     #timer-wrapper .timer-title
@@ -113,7 +113,7 @@
         position: absolute;
         height: 65px;
         width: 60px;
-        right: 20px;
+        right: 10px;
         top: 0px;
 
         text-align: right;
@@ -212,4 +212,9 @@
 .page.active
 {
     display: block;
+}
+
+.ralign
+{
+    text-align: right;
 }
