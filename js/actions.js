@@ -12,21 +12,25 @@ Actions.get_manager = function()
 	return Actions.instance;
 }
 
-//Sets events and triggers on buttons
-Actions.prototype.init = function()
+// Binders
+Actions.bind_element_action = function(el)
 {
-	$("[data-action]").each(function(el)
-	{
-		var callback = el.dataset.action;
-		if(this[callback])
-			el.addEventListener('click', this[callback].bind(this, el));
-	}, this);
+	var callback = el.dataset.action;
+	if(this[callback])
+		el.addEventListener('click', this[callback].bind(this, el));
+}
 
-	$("[data-page]").each(function(el)
+Actions.bind_element_page = function(el)
 	{
 		var destination = el.dataset.page;
 		el.addEventListener('click', this.load_page.bind(this, destination));
-	},this);
+	}
+
+// Sets events and triggers on buttons
+Actions.prototype.init = function()
+{	
+	$("[data-action]").each(Actions.bind_element_action, this);
+	$("[data-page]").each(Actions.bind_element_page, this);
 }
 
 // Allows a child object to register for periodic timer updates
@@ -102,11 +106,13 @@ Actions.prototype.edit_timer_add_split = function()
 	
 	$("#form-edit-timer-split-list .timer-split:last-of-type").after(split_template);
 	
+	$(".timer-split:last-of-type [data-action]").each(Actions.bind_element_action, this);
 }
 
 Actions.prototype.edit_timer_remove_split = function(el)
 {
-	$(el).parents(".timer-split").remove();
+	var parent = $(el).parents(".timer-split");
+	$(parent[0]).remove();
 }
 
 Actions.prototype.edit_timer_submit = function()

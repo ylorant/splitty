@@ -39,6 +39,25 @@ $(function()
 {
 	action_handler = new Actions();
 	action_handler.init();
-
+    
+    var table_pos = $("#timer-splits-container")[0].getBoundingClientRect();
+    var drag_handle_evt = function(event)
+    {
+        var height = Math.max(table_pos.height, event.y - (table_pos.top + document.body.scrollTop));
+        
+        $("#timer-splits-container").css("height", height + "px" );  
+    };
+    
+    // Split size handle
+    $("#timer-split-handle").on("mousedown",function(e)
+    {
+        $(document).on("mousemove", drag_handle_evt);
+        e.preventDefault();
+    })
+    $(document).on("mouseup", function()
+    {
+        $(document).off("mousemove", drag_handle_evt);
+    });
+    
 	action_handler.load_page("main-menu");
 });

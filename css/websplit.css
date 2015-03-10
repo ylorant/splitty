@@ -137,7 +137,7 @@
         border-collapse: separate;
     }
 
-    #timer-splits
+    #timer-splits-container
     {
         border-top: 1px solid #444;
         border-bottom: 1px solid #444;
@@ -200,6 +200,50 @@
         font-size: 48px;
         font-weight: bold;
         text-align: right;
+    }
+    
+    #timer-split-handle
+    {
+        color: transparent;
+        background-color: transparent;
+    }
+    
+    #timer-split-handle:hover,
+    #timer-split-handle:active
+    {
+        background-color: #444;
+        color: #888;
+    }
+    
+/* Timer handle, styled in timer style */
+    
+    #timer-split-handle
+    {
+        position: relative;
+        top: -1px;
+        display: block;
+        width: 100%;
+        height: 3px;
+        float: left;
+        z-index: 10;
+        
+        cursor: ns-resize;
+        font-size: 0px;
+        line-height: 0px;
+        text-align: center;
+        font-weight: bold;
+
+        transition: all 0.1s linear;
+        transition-property: background-color, color, height, top, font-size, line-height;
+    }
+    
+    #timer-split-handle:hover,
+    #timer-split-handle:active
+    {
+        height: 10px;
+        top: -5px;
+        font-size: 16px;
+        line-height: 11px;
     }
 
 /* Page Styles */
