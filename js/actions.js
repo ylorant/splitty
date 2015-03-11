@@ -115,6 +115,12 @@ Actions.prototype.edit_timer_remove_split = function(el)
 	$(parent[0]).remove();
 }
 
+Actions.prototype.edit_timer_move_up = function(el)
+{
+	var parent = $(el).parents(".timer-split");
+	var previous_sibling = parent[0].previousSibling;
+}
+
 Actions.prototype.edit_timer_submit = function()
 {
 	var new_timer = null;
