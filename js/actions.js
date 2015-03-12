@@ -94,15 +94,11 @@ Actions.prototype.open_timer_file = function()
 
 }
 
-Actions.prototype.create_timer = function()
-{
-	var new_timer = new Timer();
-}
-
 Actions.prototype.edit_timer_add_split = function()
 {
 	var split_template = $("#edit-timer-split-template").clone();
 	split_template.removeClass("hidden");
+	split_template.removeAttr("id");
 	
 	$("#form-edit-timer-split-list .timer-split:last-of-type").after(split_template);
 	
@@ -119,6 +115,18 @@ Actions.prototype.edit_timer_move_up = function(el)
 {
 	var parent = $(el).parents(".timer-split");
 	var previous_sibling = parent[0].previousSibling;
+	
+	if(!$(previous_sibling).is("#edit-timer-split-template"))
+		$(previous_sibling).before(parent);
+}
+
+Actions.prototype.edit_timer_move_down = function(el)
+{
+	var parent = $(el).parents(".timer-split");
+	var next_sibling = parent[0].nextSibling;
+	
+	if($(next_sibling).is('.timer-split'))
+		$(next_sibling).after(parent);
 }
 
 Actions.prototype.edit_timer_submit = function()
