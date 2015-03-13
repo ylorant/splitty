@@ -85,6 +85,23 @@ Actions.prototype.load_timer = function(timer)
 	//Setting timer title
 	$("#run-title").text(timer.run_name);
 	$("#run-count").text(timer.run_count);
+
+	for(var i in timer.splits)
+	{
+		var new_line = document.createElement("tr");
+		var new_cell_name = document.createElement("td");
+		var new_cell_time = document.createElement("td");
+		var new_cell_ref = document.createElement("td");
+
+		new_cell_name.innerHTML = timer.splits[i].name;
+		new_cell_time.classList.add("time");
+
+		$(new_line).append(new_cell_name);
+		$(new_line).append(new_cell_time);
+		$(new_line).append(new_cell_ref);
+
+		$("#timer-splits").append(new_line);
+	}
 }
 
 // Registered actions, linked to buttons and everything, so-called "controllers"
