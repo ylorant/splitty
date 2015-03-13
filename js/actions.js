@@ -176,3 +176,28 @@ Actions.prototype.edit_timer_submit = function()
 	
 	this.load_timer(new_timer);
 }
+
+Actions.prototype.edit_timer_cancel = function()
+{
+
+	var confirmation = confirm("Stop editing ? Unsaved changes will be lost !");
+	if(confirmation)
+	{
+		$("#edit-timer-form input").each(function(el)
+		{
+			el.value = "";
+		});
+		
+		$("#edit-timer-form .timer-split").each(function(el)
+		{
+			if(!$(el).is("#edit-timer-split-template"))
+			{
+				$(el).remove();
+			}
+		})
+		
+		this.edit_timer_add_split();
+		
+		this.load_page("main-menu");
+	}
+}
