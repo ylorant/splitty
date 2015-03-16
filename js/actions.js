@@ -36,13 +36,13 @@ Actions.prototype.init = function()
 // Allows a child object to register for periodic timer updates
 Actions.prototype.register_updates = function(object)
 {
-	if(this.updates.indexOf(object) == -1)
+	if(this.updates.indexOf(object) != -1)
 		return false;
 	
 	this.updates.push(object);
 
 	if(this.updates.length == 1)
-		this.interval_id = setInterval(this.update.bind(this), 80);
+		this.interval_id = setInterval(this.update.bind(this), 50);
 
 	return true;
 }
@@ -65,7 +65,20 @@ Actions.prototype.unregister_updates = function(object)
 Actions.prototype.update = function()
 {
 	for(var update in this.updates)
-		update.update();
+		this.updates[update].update();
+	
+	//Update the gui here
+	if(window.current_run)
+	{
+		var rel_split = null;
+		if(window.current_timer.splits[window.current_run.current_split].pb_split)
+			rel_split = window.current_run.elapsed - window.current_timer.splits[window.current_run.current_split].pb_split;
+		
+		$("#global-time").html(window.current_run.get_time(true));
+	
+		if(rel_split)
+			$($("#timer-splits tr")[window.current_run.current_split].querySelector(".time")).html(rel_split);
+	}
 }
 
 Actions.prototype.load_page = function(page)
@@ -85,7 +98,8 @@ Actions.prototype.load_timer = function(timer)
 	//Setting timer title
 	$("#run-title").text(timer.run_name);
 	$("#run-count").text(timer.run_count);
-
+	
+	$("#timer-splits tr").remove();
 	for(var i in timer.splits)
 	{
 		var new_line = document.createElement("tr");
@@ -95,12 +109,17 @@ Actions.prototype.load_timer = function(timer)
 
 		new_cell_name.innerHTML = timer.splits[i].name;
 		new_cell_time.classList.add("time");
+		
+		if(timer.splits[i].pb_split)
+			new_cell_ref.innerHTML = timer.splits[i].pb_split;
+		else
+			new_cell_ref.innerHTML = "-";
 
-		$(new_line).append(new_cell_name);
-		$(new_line).append(new_cell_time);
-		$(new_line).append(new_cell_ref);
-
-		$("#timer-splits").append(new_line);
+		new_line.appendChild(new_cell_name);
+		new_line.appendChild(new_cell_time);
+		new_line.appendChild(new_cell_ref);
+		
+		$("#timer-splits").append($(new_line));
 	}
 }
 
@@ -155,7 +174,8 @@ Actions.prototype.edit_timer_submit = function()
 	else
 		new_timer = new Timer();
 	
-	new_timer.run_name = q("#form-edit-timer-name").value;
+	new_timer.timer_name = q("#form-edit-timer-name").value;
+	new_timer.run_name = q("#form-edit-game-name").value;
 	
 	$("#form-edit-timer-split-list .timer-split").each(function(el)
 	{
@@ -191,7 +211,9 @@ Actions.prototype.edit_timer_submit = function()
 		}
 	});
 	
+	new_timer.save();
 	this.load_timer(new_timer);
+	this.load_page('timer-control');
 }
 
 Actions.prototype.edit_timer_cancel = function()
@@ -216,5 +238,23 @@ Actions.prototype.edit_timer_cancel = function()
 		this.edit_timer_add_split();
 		
 		this.load_page("main-menu");
+	}
+}
+
+Actions.prototype.timer_start_split = function()
+{
+	if(window.current_run) // A timer run is already started, we split
+	{
+		window.current_run.split();
+	}
+	else // No timer run has been started, we create and start one
+	{
+		if(window.current_timer)
+		{
+			window.current_run = new Run(window.current_timer);
+			window.current_run.start();
+			
+			$("#run_count").html(window.current_timer.run_count);
+		}
 	}
 }

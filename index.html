@@ -43,11 +43,6 @@
             <div id="timer-splits-container">
                 <table id="timer-splits">
                     <tr>
-                        <th class="title"></th>
-                        <th class="time"></th>
-                        <th class="reference"></th>
-                    </tr>
-                    <tr>
                         <td>-</td>
                         <td class="time"></td>
                         <td>-</td>
@@ -65,7 +60,7 @@
                 <td id="possible-time-save">-</td>
             </tr>
             <tr>
-                <td colspan="2" id="global-time">0.<small>00</small></td>
+                <td colspan="2" id="global-time">0.<small>0</small></td>
             </tr>
             </table>
         </div>
@@ -137,7 +132,7 @@
                                         <input type="text" class="form-control split-name" name="split[$i]" placeholder="Split name" />
                                     </div>
                                     <div class="col-sm-3 col-lg-2">
-                                        <input type="text" class="form-control split-reference" name="reference_time[$i]" placeholder="Reference time" />
+                                        <input type="text" class="form-control split-reference" name="reference_time[$i]" placeholder="Reference time (cumulative)" />
                                     </div>
                                     <div class="col-sm-3 col-lg-2 btn-group">
                                         <a class="btn btn-default" title="Move split up" data-action="edit_timer_move_up">
@@ -157,7 +152,7 @@
                                         <input type="text" class="form-control split-name" name="split[0]" placeholder="Split name" />
                                     </div>
                                     <div class="col-sm-3 col-lg-2">
-                                        <input type="text" class="form-control split-reference" name="reference_time[0]" placeholder="Reference time" />
+                                        <input type="text" class="form-control split-reference" name="reference_time[0]" placeholder="Reference time (cumulative)" />
                                     </div>
                                     <div class="col-sm-3 col-lg-2 btn-group">
                                         <a class="btn btn-default" title="Move split up" data-action="edit_timer_move_up">
@@ -181,6 +176,69 @@
                                 <a class="btn btn-default" data-action="edit_timer_cancel">Cancel</a>
                             </div>
                         </form>
+                    </div>
+                    <div id="page-timer-control" class="page col-lg-12">
+                        <div class="col-lg-12 title">
+                            <h1>Timer control</h1>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="row button-bar">
+                                    <div class="col-lg-12 text-center">
+                                        <div class="well inline-block">
+                                            <a class="btn btn-success btn-block btn-lg" data-action="timer_start_split">
+                                                <i class="glyphicon glyphicon-play"></i>
+                                                <span>Start/Split</span>
+                                            </a>
+                                        </div>
+                                        <div class="well inline-block">
+                                            <a class="btn btn-primary btn-block btn-lg" data-action="timer_split_skip">
+                                                <i class="glyphicon glyphicon-forward"></i>
+                                                <span>Skip split</span>
+                                            </a>
+                                        </div>
+                                        <div class="well inline-block">
+                                            <a class="btn btn-primary btn-block btn-lg" data-action="timer_split_prev">
+                                                <i class="glyphicon glyphicon-backward"></i>
+                                                <span>Go back</span>
+                                            </a>
+                                        </div>
+                                        <div class="well inline-block">
+                                            <a class="btn btn-primary btn-block btn-lg" data-action="timer_reset">
+                                                <i class="glyphicon glyphicon-refresh"></i>
+                                                <span>Reset</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 text-justify">
+                                <p>
+                                    Now you've created or loaded your timer, and you're ready to play !
+                                    Just click on the <code>Start</code> button below to start the timer.
+                                    Then, you have 3 possible actions :
+                                </p>
+                                
+                                <ul>
+                                    <li>Tick time for a split (the most common thing you'll do)</li>
+                                    <li>Navigate splits (if you split too much or if you have to skip a split)</li>
+                                    <li>Reset the timer (if you restart your run)</li>
+                                </ul>
+                                
+                                <p>
+                                    With these actions, you should be able to manage your run quite easily.
+                                    Of course, if you're running, aiming and clicking on buttons is quite hard. To address this issue, you can also
+                                    use keyboard shortcuts to do these actions :
+                                </p>
+                                
+                                <ul>
+                                    <li>Use <code>Space</code> to start/split</li>
+                                    <li>Use <code>Down arrow</code> to skip</li>
+                                    <li>Use <code>Up arrow</code> to go back</li>
+                                    <li>Use <code>Backspace</code> to reset</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
