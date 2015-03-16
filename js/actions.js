@@ -74,10 +74,22 @@ Actions.prototype.update = function()
 		if(window.current_timer.splits[window.current_run.current_split].pb_split)
 			rel_split = window.current_run.elapsed - window.current_timer.splits[window.current_run.current_split].pb_split;
 		
-		$("#global-time").html(window.current_run.get_time(true));
+		$("#global-time").html(window.current_run.get_time(true, 1));
 	
 		if(rel_split)
-			$($("#timer-splits tr")[window.current_run.current_split].querySelector(".time")).html(rel_split);
+		{
+			var rel_human = msec_to_time(rel_split, 1);
+			var rel_str = rel_split > 0 ? "+" : "-";
+
+			if(rel_human.hr > 0)
+				rel_str += rel_human.hr + ":";
+			if(rel_human.mn > 0)
+				rel_str += rel_human.mn + ":" + rel_human.sec;
+			else
+				rel_str += rel_human.sec + ":" + rel_human.ms;
+
+			$($("#timer-splits tr")[window.current_run.current_split].querySelector(".time")).html(rel_str);
+		}
 	}
 }
 
@@ -111,7 +123,10 @@ Actions.prototype.load_timer = function(timer)
 		new_cell_time.classList.add("time");
 		
 		if(timer.splits[i].pb_split)
-			new_cell_ref.innerHTML = timer.splits[i].pb_split;
+		{
+			var htime = msec_to_string(timer.splits[i].pb_split, false, 0);
+			new_cell_ref.innerHTML = htime;
+		}
 		else
 			new_cell_ref.innerHTML = "-";
 
