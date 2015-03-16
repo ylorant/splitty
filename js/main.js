@@ -42,7 +42,7 @@ function msec_to_time(time, res)
     var minutes = 0;
     var hours = 0;
     var seconds = parseInt(time / 1000, 10);
-    var dseconds = parseInt(time / (1000 - res_pow), 10);
+    var dseconds = parseInt(time / (1000 / res_pow), 10);
 
     if(seconds >= 60)
         minutes = parseInt(seconds / 60, 10);
