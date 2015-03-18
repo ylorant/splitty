@@ -62,8 +62,10 @@ Actions.prototype.unregister_updates = function(object)
 	return true;
 }
 
-Actions.prototype.update = function()
+Actions.prototype.update = function(set_split_time)
 {
+	set_split_time = typeof set_split_time != "undefined" ? set_split_time : false;
+	
 	for(var update in this.updates)
 		this.updates[update].update();
 	
@@ -82,13 +84,22 @@ Actions.prototype.update = function()
 			var rel_str = rel_split > 0 ? "+" : "-";
 
 			if(rel_human.hr > 0)
-				rel_str += rel_human.hr + ":";
+				rel_str += rel_human.hr + ":" + (rel_human.mn < 10 ? "0" : "");
 			if(rel_human.mn > 0)
-				rel_str += rel_human.mn + ":" + rel_human.sec;
+				rel_str += rel_human.mn + ":" + (rel_human.sec < 10 ? "0" : "") + rel_human.sec;
 			else
 				rel_str += rel_human.sec + ":" + rel_human.ms;
 
 			$($("#timer-splits tr")[window.current_run.current_split].querySelector(".time")).html(rel_str);
+		}
+		
+		if(set_split_time)
+		{
+			var res = 1;
+			if(window.current_run.elapsed > 60000)
+				res = 0;
+			
+			$($("#timer-splits tr")[window.current_run.current_split].querySelector(".ref")).html(msec_to_string(window.current_run.elapsed, true, res));
 		}
 	}
 }
@@ -121,6 +132,7 @@ Actions.prototype.load_timer = function(timer)
 
 		new_cell_name.innerHTML = timer.splits[i].name;
 		new_cell_time.classList.add("time");
+		new_cell_ref.classList.add("ref");
 		
 		if(timer.splits[i].pb_split)
 		{
@@ -260,6 +272,7 @@ Actions.prototype.timer_start_split = function()
 {
 	if(window.current_run) // A timer run is already started, we split
 	{
+		$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
 		window.current_run.split();
 	}
 	else // No timer run has been started, we create and start one
@@ -269,7 +282,24 @@ Actions.prototype.timer_start_split = function()
 			window.current_run = new Run(window.current_timer);
 			window.current_run.start();
 			
-			$("#run_count").html(window.current_timer.run_count);
+			$("#control-button-play span").text("Split");
+			$("#control-button-play i").removeClass("glyphicon-play").addClass("glyphicon-ok");
 		}
 	}
+	
+	if(window.current_run.started)
+		$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
+	
+	if(window.current_run.current_split + 1 == window.current_timer.splits.length)
+	{
+		$("#control-button-play span").text("Stop");
+		$("#control-button-play i").removeClass("glyphicon-play").addClass("glyphicon-stop");
+	}
+}
+
+Actions.prototype.timer_split_skip = function()
+{
+	$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
+	window.current_run.next_split();
+	$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
 }

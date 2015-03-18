@@ -45,7 +45,7 @@
                     <tr>
                         <td>-</td>
                         <td class="time"></td>
-                        <td>-</td>
+                        <td class="ref">-</td>
                     </tr>
                 </table>
             </div>
@@ -186,25 +186,25 @@
                                 <div class="row button-bar">
                                     <div class="col-lg-12 text-center">
                                         <div class="well inline-block">
-                                            <a class="btn btn-success btn-block btn-lg" data-action="timer_start_split">
+                                            <a class="btn btn-success btn-block btn-lg" id="control-button-play" data-action="timer_start_split">
                                                 <i class="glyphicon glyphicon-play"></i>
-                                                <span>Start/Split</span>
+                                                <span>Start</span>
                                             </a>
                                         </div>
                                         <div class="well inline-block">
-                                            <a class="btn btn-primary btn-block btn-lg" data-action="timer_split_skip">
+                                            <a class="btn btn-primary btn-block btn-lg" id="control-button-skip" data-action="timer_split_skip">
                                                 <i class="glyphicon glyphicon-forward"></i>
                                                 <span>Skip split</span>
                                             </a>
                                         </div>
                                         <div class="well inline-block">
-                                            <a class="btn btn-primary btn-block btn-lg" data-action="timer_split_prev">
+                                            <a class="btn btn-primary btn-block btn-lg" id="control-button-back" data-action="timer_split_prev">
                                                 <i class="glyphicon glyphicon-backward"></i>
                                                 <span>Go back</span>
                                             </a>
                                         </div>
                                         <div class="well inline-block">
-                                            <a class="btn btn-primary btn-block btn-lg" data-action="timer_reset">
+                                            <a class="btn btn-danger btn-block btn-lg" id="control-button-reset" data-action="timer_reset">
                                                 <i class="glyphicon glyphicon-refresh"></i>
                                                 <span>Reset</span>
                                             </a>
