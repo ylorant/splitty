@@ -304,7 +304,8 @@ Actions.prototype.handle_keydown = function(ev)
 		}
 	}
 	
-	if(ev.keyCode == 8)
+	//If we're on timer control, we prevent browser action for backspace
+	if(ev.keyCode == 8 && this.get_page() == "timer-control")
 		ev.preventDefault();
 }
 
