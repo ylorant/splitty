@@ -31,14 +31,20 @@ Run.prototype.split = function()
 
 Run.prototype.prev_split = function()
 {
-	this.current_split--;
-	this.split_times[this.current_split] = null;
+	if(this.current_split > 0)
+	{
+		this.current_split--;
+		this.split_times[this.current_split] = null;
+	}
 }
 
 Run.prototype.next_split = function()
 {
 	this.split_times[this.current_split] = null;
 	this.current_split++;
+	
+	if(this.current_split == this.timer.splits.length)
+		this.stop(false);
 }
 
 Run.prototype.stop = function(do_update)

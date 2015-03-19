@@ -3,6 +3,7 @@ function Actions()
 	Actions.instance = this;
 	this.updates = [];
 	this.interval_id = 0;
+	this.key_down = false;
 }
 
 // Singleton implementation
@@ -31,6 +32,9 @@ Actions.prototype.init = function()
 {	
 	$("[data-action]").each(Actions.bind_element_action, this);
 	$("[data-page]").each(Actions.bind_element_page, this);
+	
+	$(document).on("keydown", this.handle_keydown.bind(this));
+	$(document).on("keyup", this.handle_keyup.bind(this));
 }
 
 // Allows a child object to register for periodic timer updates
@@ -112,6 +116,11 @@ Actions.prototype.load_page = function(page)
 		$(".page").removeClass("active");
 		$(selector).addClass("active");
 	}
+}
+
+Actions.prototype.get_page = function()
+{
+	return $(".page.active").attr("id").substr(5);
 }
 
 Actions.prototype.load_timer = function(timer)
@@ -238,6 +247,12 @@ Actions.prototype.edit_timer_submit = function()
 		}
 	});
 	
+	if(new_timer.splits.length == 0)
+	{
+		alert("You have to create at least one split in the timer to be able to save it.");
+		return false;
+	}
+	
 	new_timer.save();
 	this.load_timer(new_timer);
 	this.load_page('timer-control');
@@ -268,9 +283,39 @@ Actions.prototype.edit_timer_cancel = function()
 	}
 }
 
+Actions.prototype.handle_keydown = function(ev)
+{
+	if(!this.key_down)
+	{
+		if(this.get_page() == "timer-control")
+		{
+			switch(ev.keyCode)
+			{
+				case 32: //Space : start/split
+					this.timer_start_split();
+					break;
+				case 40: // Down : skip
+				    this.timer_split_skip();
+				    break;
+				case 38: // Up : go back
+				    break;
+				// case 8:
+			}
+		}
+	}
+	
+	if(ev.keyCode == 8)
+		ev.preventDefault();
+}
+
+Actions.prototype.handle_keyup = function(ev)
+{
+	this.key_down = false;
+}
+
 Actions.prototype.timer_start_split = function()
 {
-	if(window.current_run) // A timer run is already started, we split
+	if(window.current_run && window.current_run.started) // A timer run is already started, we split
 	{
 		$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
 		window.current_run.split();
@@ -279,16 +324,25 @@ Actions.prototype.timer_start_split = function()
 	{
 		if(window.current_timer)
 		{
+			this.load_timer(window.current_timer);
 			window.current_run = new Run(window.current_timer);
 			window.current_run.start();
 			
 			$("#control-button-play span").text("Split");
 			$("#control-button-play i").removeClass("glyphicon-play").addClass("glyphicon-ok");
 		}
+		
+		$("#control-button-skip").removeClass("disabled");
+		$("#control-button-back").removeClass("disabled");
 	}
 	
 	if(window.current_run.started)
 		$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
+	else
+	{
+		$("#control-button-play span").text("Start");
+		$("#control-button-play i").removeClass("glyphicon-ok").removeClass("glyphicon-stop").addClass("glyphicon-play");	
+	}
 	
 	if(window.current_run.current_split + 1 == window.current_timer.splits.length)
 	{
@@ -299,7 +353,20 @@ Actions.prototype.timer_start_split = function()
 
 Actions.prototype.timer_split_skip = function()
 {
-	$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
-	window.current_run.next_split();
-	$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
+	if(window.current_run && window.current_run.started)
+	{
+		$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
+		$($("#timer-splits tr")[window.current_run.current_split].querySelector(".time")).html("-");
+		$($("#timer-splits tr")[window.current_run.current_split].querySelector(".ref")).html("-");
+		window.current_run.next_split();
+	
+		if(window.current_run.started)
+			$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
+		
+		if(window.current_run.current_split + 1 == window.current_timer.splits.length)
+		{
+			$("#control-button-play span").text("Stop");
+			$("#control-button-play i").removeClass("glyphicon-play").addClass("glyphicon-stop");
+		}
+	}
 }
