@@ -30,7 +30,7 @@ Timer.prototype.save = function()
 Timer.prototype.save_splits = function(run)
 {
 	for(var k in this.splits)
-		this.splits[k].pb = run.split_times[k];
+		this.splits[k].pb_split = run.split_times[k];
 	
 	this.save();
 }

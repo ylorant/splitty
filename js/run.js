@@ -7,13 +7,15 @@ function Run(timer)
 	this.current_split = 0;
 	this.started = false;
 	
-	this.timer.run_count++;
 }
 
 Run.prototype.start = function()
 {
 	this.start_time = new Date();
 	this.started = true;
+	
+	this.timer.run_count++;
+	this.timer.save();
 
 	// Register to update on global manager
 	if(this.timer.timer_type == Timer.Type.RTA)
