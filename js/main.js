@@ -62,7 +62,7 @@ function msec_to_string(time, use_markup, res)
     var str = "";
     if(human_time.hr > 0)
         str += human_time.hr + ":" + (human_time.mn < 10 ? "0" : "");
-    if(human_time.mn > 0)
+    // if(human_time.mn > 0)
         str += human_time.mn + ":" + (human_time.sec < 10 ? "0" : "");
 
     if(res > 0)
@@ -78,30 +78,33 @@ function msec_to_string(time, use_markup, res)
     return str;
 }
 
+function string_to_msec(str)
+{
+    var time_str = str.split(':');
+    var time = 0;
+    var multiplier = 1000;
+    
+    //Take account of milliseconds
+    if(time_str[time_str.length - 1].indexOf('.') != -1)
+    {
+        var ms = time_str[time_str.length - 1].split('.');
+        time_str[time_str.length - 1] = ms[0];
+        time += parseInt(ms[1] + "000".substring(0, 3 - ms[1].length));
+    }
+    
+    for(var i = time_str.length - 1; i >= 0; i--)
+    {
+        time += parseInt(time_str[i]) * multiplier;
+        multiplier *= 60;
+    }
+    
+    return time;
+}
+
 //Onload event - init everything
 $(function()
 {
 	action_handler = new Actions();
 	action_handler.init();
-    
-    var table_pos = $("#timer-splits-container")[0].getBoundingClientRect();
-    var drag_handle_evt = function(event)
-    {
-        var height = Math.max(table_pos.height, event.y - (table_pos.top + document.body.scrollTop));
-        
-        $("#timer-splits-container").css("height", height + "px" );  
-    };
-    
-    // Split size handle
-    $("#timer-split-handle").on("mousedown",function(e)
-    {
-        $(document).on("mousemove", drag_handle_evt);
-        e.preventDefault();
-    })
-    $(document).on("mouseup", function()
-    {
-        $(document).off("mousemove", drag_handle_evt);
-    });
-    
 	action_handler.load_page("main-menu");
 });

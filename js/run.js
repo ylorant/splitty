@@ -16,7 +16,8 @@ Run.prototype.start = function()
 	this.started = true;
 
 	// Register to update on global manager
-	Actions.get_manager().register_updates(this);
+	if(this.timer.timer_type == Timer.Type.RTA)
+		Actions.get_manager().register_updates(this);
 }
 
 Run.prototype.split = function()
@@ -27,6 +28,13 @@ Run.prototype.split = function()
 	
 	if(this.current_split == this.timer.splits.length)
 		this.stop(false);
+}
+
+Run.prototype.split_manual = function(split_time)
+{
+	this.split_times[this.current_split] = this.elapsed + split_time;
+	this.elapsed = split_time;
+	Actions.get_manager().update(true);
 }
 
 Run.prototype.prev_split = function()
