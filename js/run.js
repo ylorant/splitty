@@ -33,8 +33,12 @@ Run.prototype.split = function()
 Run.prototype.split_manual = function(split_time)
 {
 	this.split_times[this.current_split] = this.elapsed + split_time;
-	this.elapsed = split_time;
+	this.elapsed += split_time;
 	Actions.get_manager().update(true);
+	this.current_split++;
+	
+	if(this.current_split == this.timer.splits.length)
+		this.stop(false);
 }
 
 Run.prototype.prev_split = function()

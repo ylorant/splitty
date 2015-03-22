@@ -144,21 +144,14 @@
         border-top: 1px solid #444;
         border-bottom: 1px solid #444;
     }
-
-    #timer-splits tr,
-    #run-globals tr
-    {
-        border-left: 20px solid transparent;
-        border-right: 20px solid transparent;
-    }
-
+    
     #timer-splits tr.current
     {
-        background: #444;
-        border-color: #444;
+        position: relative;
+        background: #222;
         color: white;
     }
-
+    
     #timer-splits tr td
     {
         text-align: right;

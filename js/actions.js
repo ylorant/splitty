@@ -367,7 +367,10 @@ Actions.prototype.timer_start_split = function()
 			var split_time = prompt('Time for split "' + window.current_timer.splits[window.current_run.current_split].name + '"');
 			
 			if(split_time)
+			{			
+				$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
 				window.current_run.split_manual(string_to_msec(split_time));
+			}
 		}
 	}
 	else // No timer run has been started, we create and start one
@@ -401,7 +404,7 @@ Actions.prototype.timer_start_split = function()
 		$("#control-button-reset i").removeClass("glyphicon-stop").addClass("glyphicon-refresh");
 	}
 	
-	if(window.current_run.current_split + 1 == window.current_timer.splits.length)
+	if(window.current_run.current_split + 1 == window.current_timer.splits.length && window.current_timer.timer_type == Timer.Type.RTA)
 	{
 		$("#control-button-play span").text("Stop");
 		$("#control-button-play i").removeClass("glyphicon-play").addClass("glyphicon-stop");
