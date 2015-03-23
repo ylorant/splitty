@@ -109,7 +109,7 @@ Actions.prototype.update = function(set_split_time)
 		
 		$("#global-time").html(window.current_run.get_time(true, 1));
 	
-		if(rel_split && rel_split > 0)
+		if(rel_split && (rel_split > 0 || set_split_time))
 		{
 			var rel_human = msec_to_time(rel_split, 1);
 			var rel_str = rel_split > 0 ? "+" : "-";
