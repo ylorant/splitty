@@ -27,6 +27,11 @@ Timer.prototype.save = function()
 	}
 }
 
+Timer.prototype.to_string = function()
+{
+	return JSON.stringify(this);
+}
+
 Timer.prototype.save_splits = function(run)
 {
 	for(var k in this.splits)
@@ -46,6 +51,17 @@ Timer.load = function(timer_name)
 		for(var k in timer_obj)
 			new_timer[k] = timer_obj[k];
 	}
+	
+	return new_timer;
+}
+
+Timer.import_json = function(json)
+{
+	var new_timer = new Timer();
+	var obj = JSON.parse(json);
+	
+	for(var k in obj)
+			new_timer[k] = obj[k];
 	
 	return new_timer;
 }

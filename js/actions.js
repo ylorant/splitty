@@ -153,7 +153,7 @@ Actions.prototype.load_timer = function(timer)
 	$("#run-count").text(timer.run_count);
 	
 	//Setting global time
-	$("#global-timer").html("0.<small>0</small>");
+	$("#global-time").html("0:00.<small>0</small>");
 	
 	$("#timer-splits tr").remove();
 	for(var i in timer.splits)
@@ -180,7 +180,39 @@ Actions.prototype.load_timer = function(timer)
 		new_line.appendChild(new_cell_ref);
 		
 		$("#timer-splits").append($(new_line));
+		
+		//Export button
+		$("#control-button-export").attr('href', 'data:text/plain;charset=utf8,' + encodeURIComponent(timer.to_string()));
+		$("#control-button-export").attr('download', timer.run_name.replace('/', '-') + ".json");
 	}
+}
+
+Actions.prototype.load_empty_timer = function()
+{
+	$("#run-title").text("-");
+	$("#run-count").text("0");
+	
+	//Setting global time
+	$("#global-time").html("0:00.<small>0</small>");
+	
+	$("#timer-splits tr").remove();
+	
+	var new_line = document.createElement("tr");
+	var new_cell_name = document.createElement("td");
+	var new_cell_time = document.createElement("td");
+	var new_cell_ref = document.createElement("td");
+
+	new_cell_name.innerHTML = "-";
+	new_cell_time.innerHTML = "";
+	new_cell_ref.innerHTML = "-";
+	new_cell_time.classList.add("time");
+	new_cell_ref.classList.add("ref");
+	
+	new_line.appendChild(new_cell_name);
+	new_line.appendChild(new_cell_time);
+	new_line.appendChild(new_cell_ref);
+	
+	$("#timer-splits").append($(new_line));
 }
 
 Actions.prototype.refresh_timer_list = function()
@@ -208,11 +240,6 @@ Actions.prototype.refresh_timer_list = function()
 }
 
 // Registered actions, linked to buttons and everything, so-called "controllers"
-
-Actions.prototype.open_timer_file = function()
-{
-
-}
 
 Actions.prototype.edit_timer_add_split = function()
 {
@@ -318,6 +345,45 @@ Actions.prototype.edit_timer_cancel = function()
 		
 		this.load_page("main-menu");
 	}
+}
+
+Actions.prototype.load_timer_submit = function()
+{
+	var select = q("#form-load-timer-timer-name");
+	var selected_timer = select.options[select.selectedIndex].value;
+	
+	if(typeof localStorage != "undefined")
+	{
+		var timer_names = JSON.parse(localStorage.timer_names);
+		
+		if(timer_names.indexOf(selected_timer) != -1)
+		{
+			var timer = Timer.load(selected_timer);
+			this.load_timer(timer);
+			this.load_page('timer-control');
+		}
+	}
+}
+
+Actions.prototype.import_timer_submit = function()
+{
+	var file = q("#form-import-timer-file").files[0];
+	if (window.File && window.FileReader && window.FileList && window.Blob)
+	{
+  		var r = new FileReader();
+  		var that = this;
+  		
+  		r.onload = (function(e)
+		{
+			var contents = e.target.result;
+			var timer = Timer.import_json(contents);
+			timer.save();
+			this.load_timer(timer);
+			this.load_page("timer-control");
+		}).bind(this);
+  		
+  		r.readAsText(file);
+  	}
 }
 
 Actions.prototype.handle_keydown = function(ev)
@@ -433,7 +499,7 @@ Actions.prototype.timer_split_skip = function()
 
 Actions.prototype.timer_stop_reset = function()
 {
-	if(window.current_run.started)
+	if(window.current_run && window.current_run.started)
 	{
 		this.update();
 		window.current_run.stop();
@@ -455,25 +521,20 @@ Actions.prototype.timer_save_splits = function()
 	window.current_timer.save_splits(window.current_run);
 }
 
-Actions.prototype.load_timer_submit = function()
+Actions.prototype.timer_edit_timer = function()
 {
-	var select = q("#form-load-timer-timer-name");
-	var selected_timer = select.options[select.selectedIndex].value;
 	
-	if(typeof localStorage != "undefined")
-	{
-		var timer_names = JSON.parse(localStorage.timer_names);
-		
-		if(timer_names.indexOf(selected_timer) != -1)
-		{
-			var timer = Timer.load(selected_timer);
-			this.load_timer(timer);
-			this.load_page('timer-control');
-		}
-	}
 }
 
-Actions.prototype.timer_edit_timer = function()
+Actions.prototype.timer_close_timer = function()
+{
+	window.current_run = null;
+	window.current_timer = null;
+	this.load_empty_timer();
+	this.load_page("main-menu");
+}
+
+Actions.prototype.timer_export_timer = function()
 {
 	
 }

@@ -60,7 +60,7 @@
                 <td id="possible-time-save">-</td>
             </tr>
             <tr>
-                <td colspan="2" id="global-time">0.<small>0</small></td>
+                <td colspan="2" id="global-time">0:00.<small>0</small></td>
             </tr>
             </table>
             <!-- <div class="action-buttons">
@@ -105,9 +105,33 @@
                                         <span>Load Timer</span>
                                     </a>
                                 </div>
+                                <div class="well inline-block">
+                                    <a class="btn btn-primary btn-block btn-lg" data-page="import-timer">
+                                        <i class="glyphicon glyphicon-log-in"></i>
+                                        <span>Import Timer</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <div id="page-import-timer" class="page col-lg-12">
+                        <h1>Import timer</h1>
+                        <form id="load-timer-form" class="form-horizontal">
+                            <div class="form-group">
+                                <label for="form-import-timer-file" class="col-sm-3 control-label">Choose the timer file you want to import :</label>
+                                <div class="col-sm-5">
+                                    <input type="file" class="form-control" id="form-import-timer-file" />
+                                </div>
+                            </div>
+                            <hr />
+                            <div>
+                                <a class="btn btn-primary" data-action="import_timer_submit"><i class="glyphicon glyphicon-log-in"></i>&nbsp; Import</a>
+                                <a class="btn btn-default" data-page="main-menu">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                    
                     <div id="page-load-timer" class="page col-lg-12">
                         <h1>Load timer</h1>
                         <form id="load-timer-form" class="form-horizontal">
@@ -248,9 +272,21 @@
                                                 </a>
                                             </div>
                                             <div class="well inline-block" id="control-edit-actions">
-                                                <a class="btn btn-info btn-block btn-lg" id="control-button-save" data-action="timer_edit_timer">
+                                                <a class="btn btn-info btn-block btn-lg" id="control-button-edit" data-action="timer_edit_timer">
                                                     <i class="glyphicon glyphicon-pencil"></i>
                                                     <span>Edit timer</span>
+                                                </a>
+                                            </div>
+                                            <div class="well inline-block">
+                                                <a class="btn btn-success btn-block btn-lg" id="control-button-export" data-action="timer_export_timer">
+                                                    <i class="glyphicon glyphicon-log-out"></i>
+                                                    <span>Export timer</span>
+                                                </a>
+                                            </div>
+                                            <div class="well inline-block">
+                                                <a class="btn btn-danger btn-block btn-lg" id="control-button-close" data-action="timer_close_timer">
+                                                    <i class="glyphicon glyphicon-eject"></i>
+                                                    <span>Close timer</span>
                                                 </a>
                                             </div>
                                         </div>
