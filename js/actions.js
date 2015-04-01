@@ -401,6 +401,7 @@ Actions.prototype.handle_keydown = function(ev)
 				    this.timer_split_skip();
 				    break;
 				case 38: // Up : go back
+				    this.timer_split_prev();
 				    break;
 				case 8: // Backspace, stop/reset
 				    this.timer_stop_reset();
@@ -477,6 +478,19 @@ Actions.prototype.timer_start_split = function()
 	}
 }
 
+Actions.prototype.timer_split_prev = function()
+{
+	$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
+	window.current_run.prev_split();
+	$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
+	
+	this.update();
+	
+	//Removing current split
+	$($("#timer-splits tr")[window.current_run.current_split].querySelector(".ref")).html(msec_to_string(window.current_timer.splits[window.current_run.current_split].pb_split));
+	$($("#timer-splits tr")[window.current_run.current_split].querySelector(".time")).html("");
+}
+
 Actions.prototype.timer_split_skip = function()
 {
 	if(window.current_run && window.current_run.started)
@@ -488,8 +502,15 @@ Actions.prototype.timer_split_skip = function()
 	
 		if(window.current_run.started)
 			$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
+		else
+		{
+			$("#control-button-play span").text("Start");
+			$("#control-button-play i").removeClass("glyphicon-ok").removeClass("glyphicon-stop").addClass("glyphicon-play");
+			$("#control-button-reset span").text("Reset");
+			$("#control-button-reset i").removeClass("glyphicon-stop").addClass("glyphicon-refresh");
+		}
 		
-		if(window.current_run.current_split + 1 == window.current_timer.splits.length)
+		if(window.current_run.current_split + 1 == window.current_timer.splits.length && window.current_timer.timer_type == Timer.Type.RTA)
 		{
 			$("#control-button-play span").text("Stop");
 			$("#control-button-play i").removeClass("glyphicon-play").addClass("glyphicon-stop");

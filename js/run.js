@@ -48,6 +48,10 @@ Run.prototype.prev_split = function()
 	if(this.current_split > 0)
 	{
 		this.current_split--;
+		
+		if(this.timer.timer_type == Timer.Type.MANUAL)
+			this.elapsed -= this.split_times[this.current_split];
+		
 		this.split_times[this.current_split] = null;
 	}
 }
