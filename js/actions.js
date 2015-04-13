@@ -59,6 +59,13 @@ Actions.prototype.init = function()
         $(document).off("mousemove", drag_handle_evt);
     }).bind(this));
 	
+	$("#timer-split-handle").on("dblclick",(function(ev)
+	{
+		var auto_height = q("#timer-splits").clientHeight;
+		$("#timer-splits-container").css("height", auto_height + "px");
+		this.save_handle_position(auto_height);
+	}).bind(this));
+	
 	//Initializing split zone height
 	this.load_handle_position();
 	
