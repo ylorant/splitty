@@ -50,7 +50,12 @@ Run.prototype.prev_split = function()
 		this.current_split--;
 		
 		if(this.timer.timer_type == Timer.Type.MANUAL)
-			this.elapsed -= this.split_times[this.current_split];
+		{
+			if(this.current_split == 0)
+				this.elapsed = 0;
+			else
+				this.elapsed -= this.split_times[this.current_split - 1];
+		}
 		
 		this.split_times[this.current_split] = null;
 	}

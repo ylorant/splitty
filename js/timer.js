@@ -1,3 +1,11 @@
+/*
+
+	Timer.splits[] is the split list. Each split is an object composed like this:
+	
+	
+	
+ */
+
 function Timer()
 {
 	this.timer_name = "";
@@ -40,16 +48,42 @@ Timer.prototype.save_splits = function(run)
 	this.save();
 }
 
+Timer.prototype.compute_split_lengths = function()
+{
+	var previous_elapsed = 0;
+	for(var i in this.splits)
+	{
+		if(this.splits[i] != null)
+		{
+			this.splits[i].pb_duration = this.splits[i].pb_split - previous_elapsed;
+			previous_elapsed = this.splits[i].pb_split;
+		}
+	}
+	
+	this.save();
+}
+
 Timer.load = function(timer_name)
 {
+	var new_timer = new Timer();
+
 	if(typeof localStorage != 'undefined' && typeof localStorage[timer_name] != 'undefined')
 	{
-		var new_timer = new Timer();
 		
 		var timer_obj = JSON.parse(localStorage[timer_name]);
 		
 		for(var k in timer_obj)
 			new_timer[k] = timer_obj[k];
+		
+		var has_duration = false;
+		for(var i in new_timer.splits)
+		{
+			if(new_timer.splits[i].pb_duration != null)
+				has_duration = true;
+		}
+		
+		if(!has_duration)
+			new_timer.compute_split_lengths();
 	}
 	
 	return new_timer;

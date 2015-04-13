@@ -4,6 +4,8 @@ function Actions()
 	this.updates = [];
 	this.interval_id = 0;
 	this.key_down = false;
+	this.table_pos = null;
+	this.split_scroll_status = 0;
 }
 
 // Singleton implementation
@@ -36,32 +38,76 @@ Actions.prototype.init = function()
 	$(document).on("keydown", this.handle_keydown.bind(this));
 	$(document).on("keyup", this.handle_keyup.bind(this));
 	
-	var table_pos = $("#timer-splits-container")[0].getBoundingClientRect();
-    var drag_handle_evt = function(event)
+	this.table_pos = q("#timer-splits-container").getBoundingClientRect();
+    var drag_handle_evt = (function(event)
     {
-        var height = Math.max(table_pos.height, event.y - (table_pos.top + document.body.scrollTop));
+        var height = Math.max(this.table_pos.height, event.y - (this.table_pos.top + document.body.scrollTop));
         $("#timer-splits-container").css("height", height + "px" );
         
-        this.save_handle_position();
-    };
+        this.save_handle_position(height);
+    }).bind(this);
     
     // Split size handle
     $("#timer-split-handle").on("mousedown",(function(e)
     {
-        $(document).on("mousemove", drag_handle_evt.bind(this));
+        $(document).on("mousemove", drag_handle_evt);
         e.preventDefault();
     }).bind(this));
     
     $(document).on("mouseup", (function()
     {
-        $(document).off("mousemove", drag_handle_evt.bind(this));
+        $(document).off("mousemove", drag_handle_evt);
     }).bind(this));
+	
+	//Initializing split zone height
+	this.load_handle_position();
+	
+	//Initializing scroll
+	var wheel_event = "onwheel" in document.createElement("div") ? "wheel" :  // Modern browsers support "wheel"
+ 						document.onmousewheel !== undefined ? "mousewheel" :  // Webkit and IE support at least "mousewheel"
+    														"DOMMouseScroll"; // let's assume that remaining browsers are older Firefox
+	
+	$("#timer-splits-container").on(wheel_event, this.on_scroll_splits.bind(this));
 	
 	//Initializing timer list if it isn't already done
 	if(typeof localStorage.timer_names == "undefined" || typeof JSON.parse(localStorage.timer_names).pop == "undefined")
 		localStorage.timer_names = "[]";
 	
 	this.refresh_timer_list();
+}
+
+Actions.prototype.on_scroll_splits = function(ev)
+{
+	var top = parseInt($("#timer-splits").css('top')) || 0;
+	
+	var current_split_height = $("#timer-splits tr")[this.split_scroll_status].clientHeight;
+	
+	if(ev.deltaY < 0 && this.split_scroll_status > 0)
+		this.split_scroll_status--;
+	else if(ev.deltaY > 0 && this.split_scroll_status < $("#timer-splits tr").length - 1)
+		this.split_scroll_status++;
+	
+	$("#timer-splits").css('top', "-" + $("#timer-splits tr")[this.split_scroll_status].offsetTop + 'px');
+	
+	if(this.split_scroll_status == 0)
+		$("#timer-splits").css('top', "0px");
+	
+	ev.preventDefault();
+}
+
+Actions.prototype.save_handle_position = function(new_height)
+{
+	if(typeof localStorage != "undefined")
+		localStorage.handle_position = new_height;
+}
+
+Actions.prototype.load_handle_position = function()
+{
+	if(typeof localStorage != "undefined")
+	{
+		if(localStorage.handle_position)
+			$("#timer-splits-container").css("height", localStorage.handle_position + "px" );
+	}
 }
 
 // Allows a child object to register for periodic timer updates
@@ -293,6 +339,7 @@ Actions.prototype.edit_timer_submit = function()
 	else if(q("#form-edit-timer-type-manual").checked == true)
 		new_timer.timer_type = Timer.Type.MANUAL;
 	
+	var pb_elapsed = null;
 	$("#form-edit-timer-split-list .timer-split").each(function(el)
 	{
 		if(!$(el).is(".hidden"))
@@ -300,14 +347,19 @@ Actions.prototype.edit_timer_submit = function()
 			var split_name = el.q(".split-name").value;
 			var split_reference = el.q(".split-reference").value;
 			var pb = null;
+			var pb_duration = null;
 			
 			//Parsing PB time
 			if (split_reference.length > 0)
+			{
 				pb = string_to_msec(split_reference);
+				pb_duration = pb - pb_elapsed;
+				pb_elapsed = pb;
+			}
 				
 			//Creating the split
 			if(split_name.length > 0)
-				new_timer.splits.push({ name: split_name, pb_split: pb, split_best: -1 });
+				new_timer.splits.push({ name: split_name, pb_split: pb, pb_duration: pb_duration, split_best: -1 });
 		}
 	});
 	
@@ -395,24 +447,25 @@ Actions.prototype.handle_keydown = function(ev)
 			switch(ev.keyCode)
 			{
 				case 32: //Space : start/split
+					ev.preventDefault();
 					this.timer_start_split();
 					break;
 				case 40: // Down : skip
 				    this.timer_split_skip();
+					ev.preventDefault();
 				    break;
 				case 38: // Up : go back
 				    this.timer_split_prev();
+					ev.preventDefault();
 				    break;
 				case 8: // Backspace, stop/reset
 				    this.timer_stop_reset();
+					ev.preventDefault();
 				    break;
 			}
 		}
 	}
 	
-	//If we're on timer control, we prevent browser action for backspace
-	if(ev.keyCode == 8 && this.get_page() == "timer-control")
-		ev.preventDefault();
 }
 
 Actions.prototype.handle_keyup = function(ev)
@@ -462,7 +515,25 @@ Actions.prototype.timer_start_split = function()
 	}
 	
 	if(window.current_run.started)
+	{
 		$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
+	
+		//Move splits
+		var container_height = q("#timer-splits-container").clientHeight;
+		var split_tr = $("#timer-splits tr")[window.current_run.current_split].offsetTop;
+		
+		var total_height = q("#timer-splits").clientHeight;
+		
+		if(split_tr > container_height / 2 && total_height < container_height)
+		{
+			this.split_scroll_status = window.current_run.current_split;
+			
+			while((split_tr - (container_height / 2)) < $("#timer-splits tr")[this.split_scroll_status].offsetTop)
+				this.split_scroll_status--;
+			
+			$("#timer-splits").css('top', "-" + $("#timer-splits tr")[this.split_scroll_status].offsetTop + "px");
+		}
+	}
 	else
 	{
 		$("#control-button-play span").text("Start");

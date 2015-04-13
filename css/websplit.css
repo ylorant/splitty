@@ -31,6 +31,22 @@
         transition: all 0.5s ease;
     }
 
+    #wrapper 
+    {
+        padding-left: 300px;
+    }
+
+    #wrapper.active 
+    {
+        padding-left: 0;
+    }
+
+    #timer-wrapper 
+    {
+        width: 300px;
+    }
+
+    
     #wrapper.active #timer-wrapper 
     {
         width: 300px;
@@ -51,21 +67,7 @@
 
     /* Screen size is more than 768 pixels -> we show the timer by default */
     @media(min-width:768px) {
-        #wrapper 
-        {
-            padding-left: 300px;
-        }
-
-        #wrapper.active 
-        {
-            padding-left: 0;
-        }
-
-        #timer-wrapper 
-        {
-            width: 300px;
-        }
-
+        
         #wrapper.active #timer-wrapper 
         {
             width: 0;
@@ -136,10 +138,17 @@
         padding: 0px 20px;
         border-collapse: separate;
     }
+    
+    #timer-splits
+    {
+        position: relative;
+        top: 0px;
+    }
 
     #timer-splits-container
     {
         min-height: 200px;
+        overflow: hidden;
 
         border-top: 1px solid #444;
         border-bottom: 1px solid #444;
@@ -203,11 +212,16 @@
         background-color: transparent;
     }
     
-    #timer-split-handle:hover,
-    #timer-split-handle:active
+    #timer-split-handle:hover
     {
         background-color: #444;
         color: #888;
+    }
+    
+    #timer-split-handle:active
+    {
+        background-color: transparent;
+        color: transparent;
     }
     
 /* Timer handle, styled in timer style */
