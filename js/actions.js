@@ -524,7 +524,7 @@ Actions.prototype.timer_start_split = function()
 		
 		var total_height = q("#timer-splits").clientHeight;
 		
-		if(split_tr > container_height / 2 && total_height < container_height)
+		if(split_tr > container_height / 2 && total_height > container_height)
 		{
 			this.split_scroll_status = window.current_run.current_split;
 			
