@@ -24,8 +24,8 @@ Run.prototype.start = function()
 
 Run.prototype.split = function()
 {
-	Actions.get_manager().update(true);
 	this.split_times[this.current_split] = this.elapsed;
+	Actions.get_manager().update(true);
 	this.current_split++;
 	
 	if(this.current_split == this.timer.splits.length)

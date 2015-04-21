@@ -59,8 +59,8 @@ Timer.prototype.compute_split_lengths = function()
 			previous_elapsed = this.splits[i].pb_split;
 		}
 	}
-	
-	this.save();
+	 
+	// this.save();
 }
 
 Timer.load = function(timer_name)
@@ -80,10 +80,16 @@ Timer.load = function(timer_name)
 		{
 			if(new_timer.splits[i].pb_duration != null)
 				has_duration = true;
+			
+			
+			if(new_timer.splits[i].split_best == -1)
+				new_timer.splits[i].split_best = new_timer.splits[i].pb_duration;
 		}
 		
 		if(!has_duration)
 			new_timer.compute_split_lengths();
+		
+		new_timer.save();
 	}
 	
 	return new_timer;
