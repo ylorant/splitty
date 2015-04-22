@@ -177,50 +177,51 @@ Actions.prototype.update = function(set_split_time)
 			var el = $($("#timer-splits tr")[window.current_run.current_split].querySelector(".time"));
 			
 			el.html(rel_str);
+		}
 		
-			if(set_split_time)
-			{
-				$($("#timer-splits tr")[window.current_run.current_split].querySelector(".ref")).html(msec_to_string(window.current_run.elapsed, true, 0));
-				
-				var difference = window.current_run.split_times[window.current_run.current_split] - window.current_timer.splits[window.current_run.current_split].pb_duration;
-				
-				if(window.current_run.current_split > 0)
-					difference -= window.current_run.split_times[window.current_run.current_split - 1];
-				
-				
-				var split_time = window.current_run.split_times[window.current_run.current_split];
-				if(window.current_run.current_split > 0)
-					split_time -= window.current_run.split_times[window.current_run.current_split - 1];
-				
-				var classes = "";
-				
-				var classes = "time";
-				if(rel_split > 0)
-					classes += " late";
-				else if(rel_split < 0)
-					classes += " ahead";
-				
-				if(split_time < window.current_timer.splits[window.current_run.current_split].split_best)
-					classes = "time split-gold";
-				else if(split_time < window.current_timer.splits[window.current_run.current_split].pb_duration)
-					classes += " split-ahead";
-				else
-					classes += " split-late";
-				
-				var rel_human = msec_to_time(difference, 1);
-				var rel_str = difference > 0 ? "+" : "-";
+		if(set_split_time)
+		{
+			var el = $($("#timer-splits tr")[window.current_run.current_split].querySelector(".time"));
+			$($("#timer-splits tr")[window.current_run.current_split].querySelector(".ref")).html(msec_to_string(window.current_run.elapsed, true, 0));
+			
+			var difference = window.current_run.split_times[window.current_run.current_split] - window.current_timer.splits[window.current_run.current_split].pb_duration;
+			
+			if(window.current_run.current_split > 0)
+				difference -= window.current_run.split_times[window.current_run.current_split - 1];
+			
+			
+			var split_time = window.current_run.split_times[window.current_run.current_split];
+			if(window.current_run.current_split > 0)
+				split_time -= window.current_run.split_times[window.current_run.current_split - 1];
+			
+			var classes = "";
+			
+			var classes = "time";
+			if(rel_split > 0)
+				classes += " late";
+			else if(rel_split < 0)
+				classes += " ahead";
+			
+			if(split_time < window.current_timer.splits[window.current_run.current_split].split_best)
+				classes = "time split-gold";
+			else if(split_time < window.current_timer.splits[window.current_run.current_split].pb_duration)
+				classes += " split-ahead";
+			else
+				classes += " split-late";
+			
+			var rel_human = msec_to_time(difference, 1);
+			var rel_str = difference > 0 ? "+" : "-";
 
-				if(rel_human.hr > 0)
-					rel_str += rel_human.hr + ":" + (rel_human.mn < 10 ? "0" : "");
-				if(rel_human.mn > 0)
-					rel_str += rel_human.mn + ":" + (rel_human.sec < 10 ? "0" : "") + rel_human.sec;
-				else
-					rel_str += rel_human.sec + "." + "<small>" + rel_human.ms + "</small>";
-				
-				el[0].className = classes;
-				q("#previous-segment").className = classes;
-				$("#previous-segment").html(rel_str);
-			}
+			if(rel_human.hr > 0)
+				rel_str += rel_human.hr + ":" + (rel_human.mn < 10 ? "0" : "");
+			if(rel_human.mn > 0)
+				rel_str += rel_human.mn + ":" + (rel_human.sec < 10 ? "0" : "") + rel_human.sec;
+			else
+				rel_str += rel_human.sec + "." + "<small>" + rel_human.ms + "</small>";
+			
+			el[0].className = classes;
+			q("#previous-segment").className = classes;
+			$("#previous-segment").html(rel_str);
 		}
 	}
 }
