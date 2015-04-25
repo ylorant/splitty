@@ -53,11 +53,13 @@ Timer.prototype.compute_split_lengths = function()
 	var previous_elapsed = 0;
 	for(var i in this.splits)
 	{
-		if(this.splits[i] != null)
+		if(this.splits[i].pb_split != null && this.splits[i].pb_duration == null)
 		{
 			this.splits[i].pb_duration = this.splits[i].pb_split - previous_elapsed;
 			previous_elapsed = this.splits[i].pb_split;
 		}
+		else
+			this.splits[i].pb_duration = null;
 	}
 	 
 	// this.save();
@@ -75,19 +77,14 @@ Timer.load = function(timer_name)
 		for(var k in timer_obj)
 			new_timer[k] = timer_obj[k];
 		
-		var has_duration = false;
+		new_timer.compute_split_lengths();
+		
+		// If we haven't got any gold for the split, compute it
 		for(var i in new_timer.splits)
-		{
-			if(new_timer.splits[i].pb_duration != null)
-				has_duration = true;
-			
-			
-			if(new_timer.splits[i].split_best == -1)
+		{	
+			if(new_timer.splits[i].split_best == 0 || new_timer.splits[i].split_best == -1)
 				new_timer.splits[i].split_best = new_timer.splits[i].pb_duration;
 		}
-		
-		if(!has_duration)
-			new_timer.compute_split_lengths();
 		
 		new_timer.save();
 	}
