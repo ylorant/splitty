@@ -2,7 +2,10 @@
 
 	Timer.splits[] is the split list. Each split is an object composed like this:
 	
-	
+	- name: The name of the split
+	- pb_duration: The duration of the PB time
+	- pb_split: The elapsed time since the beginning of the run
+	- split_best: The Golden time.
 	
  */
 
@@ -30,6 +33,26 @@ Timer.prototype.save = function()
 		if(names.indexOf(this.timer_name) == -1)
 		{
 			names.push(this.timer_name);
+			localStorage.timer_names = JSON.stringify(names);
+		}
+	}
+}
+
+Timer.prototype.delete = function()
+{
+	
+	if(typeof localStorage != 'undefined')
+	{
+		delete localStorage[this.timer_name];
+		var names = JSON.parse(localStorage.timer_names);
+		if(typeof names.pop == "undefined")
+			names = [];
+		
+		var i = names.indexOf(this.timer_name);
+		if(i != -1)
+		{
+			delete names[i];
+			names.length--;
 			localStorage.timer_names = JSON.stringify(names);
 		}
 	}
@@ -85,7 +108,7 @@ Timer.load = function(timer_name)
 			if(typeof new_timer.splits[i].pb != "undefined")
 				delete new_timer.splits[i].pb;
 			
-			if(!new_timer.splits[i].split_best || new_timer.splits[i].split_best == -1 || new_timer.splits[i].split_best > new_timer.splits[i].pb_duration)
+			if(!new_timer.splits[i].split_best || (new_timer.splits[i].pb_duration && new_timer.splits[i].split_best > new_timer.splits[i].pb_duration))
 				new_timer.splits[i].split_best = new_timer.splits[i].pb_duration;
 		}
 		

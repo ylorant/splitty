@@ -202,7 +202,7 @@ Actions.prototype.update = function(set_split_time)
 			else if(rel_split < 0)
 				classes += " ahead";
 			
-			if(split_time < window.current_timer.splits[window.current_run.current_split].split_best)
+			if(window.current_timer.splits[window.current_run.current_split].split_best == null || split_time < window.current_timer.splits[window.current_run.current_split].split_best)
 				classes = "time split-gold";
 			else if(split_time < window.current_timer.splits[window.current_run.current_split].pb_duration)
 				classes += " split-ahead";
@@ -224,6 +224,27 @@ Actions.prototype.update = function(set_split_time)
 			$("#previous-segment").html(rel_str);
 		}
 	}
+}
+
+Actions.prototype.update_sob = function()
+{
+	var sum_of_bests = 0;
+	
+	console.log("Refreshing Sum of Bests");
+	for(var i in window.current_timer.splits)
+	{
+		console.log("Split '" + window.current_timer.splits[i].name + "': " + window.current_timer.splits[i].split_best);
+		if(sum_of_bests != null && window.current_timer.splits[i].split_best)
+			sum_of_bests += window.current_timer.splits[i].split_best;
+		else
+			sum_of_bests = null;
+	}
+	
+	if(sum_of_bests != null)
+		$("#sum-of-bests").html(msec_to_string(sum_of_bests));
+	else
+		$("#sum-of-bests").html("-");
+		
 }
 
 Actions.prototype.load_page = function(page)
@@ -253,7 +274,6 @@ Actions.prototype.load_timer = function(timer)
 	$("#global-time").html("0:00.<small>0</small>");
 	
 	$("#timer-splits tr").remove();
-	var sum_of_bests = 0;
 	for(var i in timer.splits)
 	{
 		var new_line = document.createElement("tr");
@@ -272,8 +292,6 @@ Actions.prototype.load_timer = function(timer)
 		}
 		else
 			new_cell_ref.innerHTML = "-";
-		
-		sum_of_bests += timer.splits[i].split_best;
 
 		new_line.appendChild(new_cell_name);
 		new_line.appendChild(new_cell_time);
@@ -286,7 +304,7 @@ Actions.prototype.load_timer = function(timer)
 		$("#control-button-export").attr('download', timer.run_name.replace('/', '-') + ".json");
 	}
 	
-	$("#sum-of-bests").html(msec_to_string(sum_of_bests));
+	this.update_sob();
 }
 
 Actions.prototype.load_empty_timer = function()
@@ -426,6 +444,7 @@ Actions.prototype.edit_timer_submit = function()
 	}
 	
 	new_timer.save();
+	this.refresh_timer_list();
 	this.load_timer(new_timer);
 	this.load_page('timer-control');
 }
@@ -471,6 +490,28 @@ Actions.prototype.load_timer_submit = function()
 			this.load_page('timer-control');
 		}
 	}
+}
+
+Actions.prototype.delete_timer = function()
+{
+	var select = q("#form-load-timer-timer-name");
+	var selected_timer = select.options[select.selectedIndex].value;
+	
+	var confirm = window.confirm("Are you sure you want to delete this timer ?");
+	
+	if(confirm && typeof localStorage != "undefined")
+	{
+		var timer_names = JSON.parse(localStorage.timer_names);
+		
+		if(timer_names.indexOf(selected_timer) != -1)
+		{
+			var timer = Timer.load(selected_timer);
+			timer.delete();
+			this.refresh_timer_list();
+		}
+	}
+	
+	return false;
 }
 
 Actions.prototype.import_timer_submit = function()

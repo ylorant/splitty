@@ -26,6 +26,20 @@ Run.prototype.split = function()
 {
 	this.split_times[this.current_split] = this.elapsed;
 	Actions.get_manager().update(true);
+	
+	var duration = this.split_times[this.current_split];
+	if(this.current_split > 0)
+		duration -= this.split_times[this.current_split - 1];
+	
+	//Check for PB
+	if(this.timer.splits[this.current_split].split_best == null || duration < this.timer.splits[this.current_split].split_best)
+	{
+		this.timer.splits[this.current_split].split_best = duration;
+		this.timer.save();
+		Actions.get_manager().update_sob();
+	}
+	
+	//Increase split counter
 	this.current_split++;
 	
 	if(this.current_split == this.timer.splits.length)
@@ -37,6 +51,15 @@ Run.prototype.split_manual = function(split_time)
 	this.split_times[this.current_split] = this.elapsed + split_time;
 	this.elapsed += split_time;
 	Actions.get_manager().update(true);
+	
+	//Check for PB
+	if(this.timer.splits[this.current_split].split_best == null || split_time < this.timer.splits[this.current_split].split_best)
+	{
+		this.timer.splits[this.current_split].split_best = split_time;
+		this.timer.save();
+		Actions.get_manager().update_sob();
+	}
+	
 	this.current_split++;
 	
 	if(this.current_split == this.timer.splits.length)
