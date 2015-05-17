@@ -41,7 +41,9 @@ Actions.prototype.init = function()
 	this.table_pos = q("#timer-splits-container").getBoundingClientRect();
     var drag_handle_evt = (function(event)
     {
-        var height = Math.max(this.table_pos.height, event.y - (this.table_pos.top + document.body.scrollTop));
+    	var y = typeof(event.y) == "undefined" ? event.clientY : event.y;
+    	
+        var height = Math.max(this.table_pos.height, y - (this.table_pos.top + document.body.scrollTop));
         $("#timer-splits-container").css("height", height + "px" );
         
         this.save_handle_position(height);
