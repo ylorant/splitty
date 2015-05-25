@@ -66,7 +66,13 @@ Timer.prototype.to_string = function()
 Timer.prototype.save_splits = function(run)
 {
 	for(var k in this.splits)
+	{
 		this.splits[k].pb_split = run.split_times[k];
+		
+		this.splits[k].pb_duration = run.split_times[k];
+		if(k > 0)
+			this.splits[k].pb_duration -= run.split_times[k - 1];
+	}
 	
 	this.save();
 }
@@ -76,7 +82,8 @@ Timer.prototype.compute_split_lengths = function()
 	var previous_elapsed = 0;
 	for(var i in this.splits)
 	{
-		if(this.splits[i].pb_split != null && this.splits[i].pb_duration == null)
+		// Fixing PB splits
+		if(this.splits[i].pb_split != null)
 		{
 			this.splits[i].pb_duration = this.splits[i].pb_split - previous_elapsed;
 			previous_elapsed = this.splits[i].pb_split;
