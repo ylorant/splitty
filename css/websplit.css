@@ -313,3 +313,27 @@
 {
     font-size: 32px;
 }
+
+.split-gold {
+    -webkit-animation: goldanimation 1s ease;
+    -moz-animation: goldanimation 1s ease;
+    -o-animation: goldanimation 1s ease;
+}
+
+@-webkit-keyframes goldanimation {
+    0%   { background-color: rgba(255, 224, 0, 0); }
+    1%   { background-color: rgba(255, 224, 0, 1); }
+    100% { background-color: rgba(255, 224, 0, 0); }
+}
+
+@-moz-keyframes goldanimation {
+    0%   { background-color: rgba(255, 224, 0, 0); }
+    1%   { background-color: rgba(255, 224, 0, 1); }
+    100% { background-color: rgba(255, 224, 0, 0); }
+}
+
+@-o-keyframes goldanimation {
+    0%   { background-color: rgba(255, 224, 0, 0); }
+    1%   { background-color: rgba(255, 224, 0, 1); }
+    100% { background-color: rgba(255, 224, 0, 0); }
+}

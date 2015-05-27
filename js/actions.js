@@ -607,6 +607,9 @@ Actions.prototype.timer_start_split = function()
 			
 			$("#control-button-reset span").text("Stop");
 			$("#control-button-reset i").removeClass("glyphicon-refresh").addClass("glyphicon-stop");
+			
+			
+			$("#timer-splits").css('top', "0px");
 		}
 		
 		$("#control-button-skip").removeClass("disabled");
@@ -704,6 +707,7 @@ Actions.prototype.timer_stop_reset = function()
 		window.current_run = null;
 		this.load_timer(window.current_timer);
 		$("#control-button-play span").text("Start");
+		$("#timer-splits").css('top', "0px");
 	}
 }
 
