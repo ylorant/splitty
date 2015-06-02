@@ -34,73 +34,73 @@ Actions.prototype.init = function()
 {
 	$("[data-action]").each(Actions.bind_element_action, this);
 	$("[data-page]").each(Actions.bind_element_page, this);
-	
+
 	$(document).on("keydown", this.handle_keydown.bind(this));
 	$(document).on("keyup", this.handle_keyup.bind(this));
-	
+
 	this.table_pos = q("#timer-splits-container").getBoundingClientRect();
     var drag_handle_evt = (function(event)
     {
     	var y = typeof(event.y) == "undefined" ? event.clientY : event.y;
-    	
+
         var height = Math.max(this.table_pos.height, y - (this.table_pos.top + document.body.scrollTop));
         $("#timer-splits-container").css("height", height + "px" );
-        
+
         this.save_handle_position(height);
     }).bind(this);
-    
+
     // Split size handle
     $("#timer-split-handle").on("mousedown",(function(e)
     {
         $(document).on("mousemove", drag_handle_evt);
         e.preventDefault();
     }).bind(this));
-    
+
     $(document).on("mouseup", (function()
     {
         $(document).off("mousemove", drag_handle_evt);
     }).bind(this));
-	
+
 	$("#timer-split-handle").on("dblclick",(function(ev)
 	{
 		var auto_height = q("#timer-splits").clientHeight;
 		$("#timer-splits-container").css("height", auto_height + "px");
 		this.save_handle_position(auto_height);
 	}).bind(this));
-	
+
 	//Initializing split zone height
 	this.load_handle_position();
-	
+
 	//Initializing scroll
 	var wheel_event = "onwheel" in document.createElement("div") ? "wheel" :  // Modern browsers support "wheel"
  						document.onmousewheel !== undefined ? "mousewheel" :  // Webkit and IE support at least "mousewheel"
     														"DOMMouseScroll"; // let's assume that remaining browsers are older Firefox
-	
+
 	$("#timer-splits-container").on(wheel_event, this.on_scroll_splits.bind(this));
-	
+
 	//Initializing timer list if it isn't already done
 	if(typeof localStorage.timer_names == "undefined" || typeof JSON.parse(localStorage.timer_names).pop == "undefined")
 		localStorage.timer_names = "[]";
-	
+
 	this.refresh_timer_list();
 }
 
 Actions.prototype.on_scroll_splits = function(ev)
 {
 	var top = parseInt($("#timer-splits").css('top')) || 0;
-	
+
 	var current_split_height = $("#timer-splits tr")[this.split_scroll_status].clientHeight;
-	
+
 	if(ev.deltaY < 0 && this.split_scroll_status > 0)
 		this.split_scroll_status--;
 	else if(ev.deltaY > 0 && this.split_scroll_status < $("#timer-splits tr").length - 1)
 		this.split_scroll_status++;
-	
+
 	$("#timer-splits").css('top', "-" + $("#timer-splits tr")[this.split_scroll_status].offsetTop + 'px');
-	
+
 	if(this.split_scroll_status == 0)
 		$("#timer-splits").css('top', "0px");
-	
+
 	ev.preventDefault();
 }
 
@@ -124,7 +124,7 @@ Actions.prototype.register_updates = function(object)
 {
 	if(this.updates.indexOf(object) != -1)
 		return false;
-	
+
 	this.updates.push(object);
 
 	if(this.updates.length == 1)
@@ -151,66 +151,66 @@ Actions.prototype.unregister_updates = function(object)
 Actions.prototype.update = function(set_split_time)
 {
 	set_split_time = typeof set_split_time != "undefined" ? set_split_time : false;
-	
+
 	for(var update in this.updates)
 		this.updates[update].update();
-	
+
 	//Update the gui here
 	if(window.current_run)
 	{
 		var rel_split = null;
 		if(window.current_timer.splits[window.current_run.current_split].pb_split)
 			rel_split = window.current_run.elapsed - window.current_timer.splits[window.current_run.current_split].pb_split;
-		
+
 		$("#global-time").html(window.current_run.get_time(true, 1));
-	
+
 		if(rel_split && (rel_split > 0 || set_split_time))
 		{
 			var rel_human = msec_to_time(rel_split, 1);
 			var rel_str = rel_split > 0 ? "+" : "-";
-			
+
 			if(rel_human.hr > 0)
 				rel_str += rel_human.hr + ":" + (rel_human.mn < 10 ? "0" : "");
 			if(rel_human.mn > 0)
 				rel_str += rel_human.mn + ":" + (rel_human.sec < 10 ? "0" : "") + rel_human.sec;
 			else
 				rel_str += rel_human.sec + "." + "<small>" + rel_human.ms + "</small>";
-			
+
 			var el = $($("#timer-splits tr")[window.current_run.current_split].querySelector(".time"));
-			
+
 			el.html(rel_str);
 		}
-		
+
 		if(set_split_time)
 		{
 			var el = $($("#timer-splits tr")[window.current_run.current_split].querySelector(".time"));
 			$($("#timer-splits tr")[window.current_run.current_split].querySelector(".ref")).html(msec_to_string(window.current_run.elapsed, true, 0));
-			
+
 			var difference = window.current_run.split_times[window.current_run.current_split] - window.current_timer.splits[window.current_run.current_split].pb_duration;
-			
+
 			if(window.current_run.current_split > 0)
 				difference -= window.current_run.split_times[window.current_run.current_split - 1];
-			
-			
+
+
 			var split_time = window.current_run.split_times[window.current_run.current_split];
 			if(window.current_run.current_split > 0)
 				split_time -= window.current_run.split_times[window.current_run.current_split - 1];
-			
+
 			var classes = "";
-			
+
 			var classes = "time";
 			if(rel_split > 0)
 				classes += " late";
 			else if(rel_split < 0)
 				classes += " ahead";
-			
+
 			if(window.current_timer.splits[window.current_run.current_split].split_best == null || split_time < window.current_timer.splits[window.current_run.current_split].split_best)
 				classes = "time split-gold";
 			else if(split_time < window.current_timer.splits[window.current_run.current_split].pb_duration)
 				classes += " split-ahead";
 			else
 				classes += " split-late";
-			
+
 			var rel_human = msec_to_time(difference, 1);
 			var rel_str = difference > 0 ? "+" : "-";
 
@@ -220,7 +220,7 @@ Actions.prototype.update = function(set_split_time)
 				rel_str += rel_human.mn + ":" + (rel_human.sec < 10 ? "0" : "") + rel_human.sec;
 			else
 				rel_str += rel_human.sec + "." + "<small>" + rel_human.ms + "</small>";
-			
+
 			el[0].className = classes;
 			q("#previous-segment").className = classes;
 			$("#previous-segment").html(rel_str);
@@ -231,7 +231,7 @@ Actions.prototype.update = function(set_split_time)
 Actions.prototype.update_sob = function()
 {
 	var sum_of_bests = 0;
-	
+
 	console.log("Refreshing Sum of Bests");
 	for(var i in window.current_timer.splits)
 	{
@@ -241,12 +241,12 @@ Actions.prototype.update_sob = function()
 		else
 			sum_of_bests = null;
 	}
-	
+
 	if(sum_of_bests != null)
 		$("#sum-of-bests").html(msec_to_string(sum_of_bests));
 	else
 		$("#sum-of-bests").html("-");
-		
+
 }
 
 Actions.prototype.load_page = function(page)
@@ -267,14 +267,14 @@ Actions.prototype.get_page = function()
 Actions.prototype.load_timer = function(timer)
 {
 	window.current_timer = timer;
-	
+
 	//Setting timer title
 	$("#run-title").text(timer.run_name);
 	$("#run-count").text(timer.run_count);
-	
+
 	//Setting global time
 	$("#global-time").html("0:00.<small>0</small>");
-	
+
 	$("#timer-splits tr").remove();
 	for(var i in timer.splits)
 	{
@@ -286,7 +286,7 @@ Actions.prototype.load_timer = function(timer)
 		new_cell_name.innerHTML = timer.splits[i].name;
 		new_cell_time.classList.add("time");
 		new_cell_ref.classList.add("ref");
-		
+
 		if(timer.splits[i].pb_split)
 		{
 			var htime = msec_to_string(timer.splits[i].pb_split, false, 0);
@@ -298,14 +298,14 @@ Actions.prototype.load_timer = function(timer)
 		new_line.appendChild(new_cell_name);
 		new_line.appendChild(new_cell_time);
 		new_line.appendChild(new_cell_ref);
-		
+
 		$("#timer-splits").append($(new_line));
-		
+
 		//Export button
 		$("#control-button-export").attr('href', 'data:text/plain;charset=utf8,' + encodeURIComponent(timer.to_string()));
 		$("#control-button-export").attr('download', timer.run_name.replace('/', '-') + ".json");
 	}
-	
+
 	this.update_sob();
 }
 
@@ -313,12 +313,12 @@ Actions.prototype.load_empty_timer = function()
 {
 	$("#run-title").text("-");
 	$("#run-count").text("0");
-	
+
 	//Setting global time
 	$("#global-time").html("0:00.<small>0</small>");
-	
+
 	$("#timer-splits tr").remove();
-	
+
 	var new_line = document.createElement("tr");
 	var new_cell_name = document.createElement("td");
 	var new_cell_time = document.createElement("td");
@@ -329,11 +329,11 @@ Actions.prototype.load_empty_timer = function()
 	new_cell_ref.innerHTML = "-";
 	new_cell_time.classList.add("time");
 	new_cell_ref.classList.add("ref");
-	
+
 	new_line.appendChild(new_cell_name);
 	new_line.appendChild(new_cell_time);
 	new_line.appendChild(new_cell_ref);
-	
+
 	$("#timer-splits").append($(new_line));
 }
 
@@ -342,21 +342,21 @@ Actions.prototype.refresh_timer_list = function()
 	if(typeof localStorage != "undefined")
 	{
 		$("#form-load-timer-timer-name option").remove();
-		
+
 		var new_line = document.createElement("option");
 		new_line.value = "";
 		new_line.innerHTML = "---";
-		
+
 		q("#form-load-timer-timer-name").appendChild(new_line);
-		
+
 		var names = JSON.parse(localStorage.timer_names);
 		for(var k in names)
 		{
 			var option = $(new_line).clone();
 			option[0].value = names[k];
 			option.text(names[k]);
-			
-			$("#form-load-timer-timer-name").append(option);	
+
+			$("#form-load-timer-timer-name").append(option);
 		}
 	}
 }
@@ -368,9 +368,9 @@ Actions.prototype.edit_timer_add_split = function()
 	var split_template = $("#edit-timer-split-template").clone();
 	split_template.removeClass("hidden");
 	split_template.removeAttr("id");
-	
+
 	$("#form-edit-timer-split-list .timer-split:last-of-type").after(split_template);
-	
+
 	$(".timer-split:last-of-type [data-action]").each(Actions.bind_element_action, this);
 }
 
@@ -384,7 +384,7 @@ Actions.prototype.edit_timer_move_up = function(el)
 {
 	var parent = $(el).parents(".timer-split");
 	var previous_sibling = parent[0].previousSibling;
-	
+
 	if(!$(previous_sibling).is("#edit-timer-split-template"))
 		$(previous_sibling).before(parent);
 }
@@ -393,7 +393,7 @@ Actions.prototype.edit_timer_move_down = function(el)
 {
 	var parent = $(el).parents(".timer-split");
 	var next_sibling = parent[0].nextSibling;
-	
+
 	if($(next_sibling).is('.timer-split'))
 		$(next_sibling).after(parent);
 }
@@ -401,20 +401,20 @@ Actions.prototype.edit_timer_move_down = function(el)
 Actions.prototype.edit_timer_submit = function()
 {
 	var new_timer = null;
-	
+
 	if(window.current_timer)
 		new_timer = window.current_timer;
 	else
 		new_timer = new Timer();
-	
+
 	new_timer.timer_name = q("#form-edit-timer-name").value;
 	new_timer.run_name = q("#form-edit-game-name").value;
-	
+
 	if(q("#form-edit-timer-type-rta").checked == true)
 		new_timer.timer_type = Timer.Type.RTA;
 	else if(q("#form-edit-timer-type-manual").checked == true)
 		new_timer.timer_type = Timer.Type.MANUAL;
-	
+
 	var pb_elapsed = null;
 	$("#form-edit-timer-split-list .timer-split").each(function(el)
 	{
@@ -424,7 +424,7 @@ Actions.prototype.edit_timer_submit = function()
 			var split_reference = el.q(".split-reference").value;
 			var pb = null;
 			var pb_duration = null;
-			
+
 			//Parsing PB time
 			if (split_reference.length > 0)
 			{
@@ -432,19 +432,19 @@ Actions.prototype.edit_timer_submit = function()
 				pb_duration = pb - pb_elapsed;
 				pb_elapsed = pb;
 			}
-				
+
 			//Creating the split
 			if(split_name.length > 0)
 				new_timer.splits.push({ name: split_name, pb_split: pb, pb_duration: pb_duration, split_best: pb_duration });
 		}
 	});
-	
+
 	if(new_timer.splits.length == 0)
 	{
 		alert("You have to create at least one split in the timer to be able to save it.");
 		return false;
 	}
-	
+
 	new_timer.save();
 	this.refresh_timer_list();
 	this.load_timer(new_timer);
@@ -454,14 +454,14 @@ Actions.prototype.edit_timer_submit = function()
 Actions.prototype.edit_timer_cancel = function()
 {
 
-	var confirmation = confirm("Stop editing ? Unsaved changes will be lost !");
+	var confirmation = confirm("Stop editing? Unsaved changes will be lost!");
 	if(confirmation)
 	{
 		$("#edit-timer-form input").each(function(el)
 		{
 			el.value = "";
 		});
-		
+
 		$("#edit-timer-form .timer-split").each(function(el)
 		{
 			if(!$(el).is("#edit-timer-split-template"))
@@ -469,9 +469,9 @@ Actions.prototype.edit_timer_cancel = function()
 				$(el).remove();
 			}
 		})
-		
+
 		this.edit_timer_add_split();
-		
+
 		this.load_page("main-menu");
 	}
 }
@@ -480,11 +480,11 @@ Actions.prototype.load_timer_submit = function()
 {
 	var select = q("#form-load-timer-timer-name");
 	var selected_timer = select.options[select.selectedIndex].value;
-	
+
 	if(typeof localStorage != "undefined")
 	{
 		var timer_names = JSON.parse(localStorage.timer_names);
-		
+
 		if(timer_names.indexOf(selected_timer) != -1)
 		{
 			var timer = Timer.load(selected_timer);
@@ -498,13 +498,13 @@ Actions.prototype.delete_timer = function()
 {
 	var select = q("#form-load-timer-timer-name");
 	var selected_timer = select.options[select.selectedIndex].value;
-	
-	var confirm = window.confirm("Are you sure you want to delete this timer ?");
-	
+
+	var confirm = window.confirm("Are you sure you want to delete this timer?");
+
 	if(confirm && typeof localStorage != "undefined")
 	{
 		var timer_names = JSON.parse(localStorage.timer_names);
-		
+
 		if(timer_names.indexOf(selected_timer) != -1)
 		{
 			var timer = Timer.load(selected_timer);
@@ -512,7 +512,7 @@ Actions.prototype.delete_timer = function()
 			this.refresh_timer_list();
 		}
 	}
-	
+
 	return false;
 }
 
@@ -523,7 +523,7 @@ Actions.prototype.import_timer_submit = function()
 	{
   		var r = new FileReader();
   		var that = this;
-  		
+
   		r.onload = (function(e)
 		{
 			var contents = e.target.result;
@@ -532,7 +532,7 @@ Actions.prototype.import_timer_submit = function()
 			this.load_timer(timer);
 			this.load_page("timer-control");
 		}).bind(this);
-  		
+
   		r.readAsText(file);
   	}
 }
@@ -545,26 +545,26 @@ Actions.prototype.handle_keydown = function(ev)
 		{
 			switch(ev.keyCode)
 			{
-				case 32: //Space : start/split
+				case 32: //Space: start/split
 					ev.preventDefault();
 					this.timer_start_split();
 					break;
-				case 40: // Down : skip
+				case 40: // Down: skip
 				    this.timer_split_skip();
 					ev.preventDefault();
 				    break;
-				case 38: // Up : go back
+				case 38: // Up: go back
 				    this.timer_split_prev();
 					ev.preventDefault();
 				    break;
-				case 8: // Backspace, stop/reset
+				case 8: // Backspace: stop/reset
 				    this.timer_stop_reset();
 					ev.preventDefault();
 				    break;
 			}
 		}
 	}
-	
+
 }
 
 Actions.prototype.handle_keyup = function(ev)
@@ -584,9 +584,9 @@ Actions.prototype.timer_start_split = function()
 		else if(window.current_timer.timer_type == Timer.Type.MANUAL)
 		{
 			var split_time = prompt('Time for split "' + window.current_timer.splits[window.current_run.current_split].name + '"');
-			
+
 			if(split_time)
-			{			
+			{
 				$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
 				window.current_run.split_manual(string_to_msec(split_time));
 			}
@@ -599,40 +599,40 @@ Actions.prototype.timer_start_split = function()
 			this.load_timer(window.current_timer);
 			window.current_run = new Run(window.current_timer);
 			window.current_run.start();
-			
+
 			$("#run-count").text(window.current_timer.run_count);
-			
+
 			$("#control-button-play span").text("Split");
 			$("#control-button-play i").removeClass("glyphicon-play").addClass("glyphicon-ok");
-			
+
 			$("#control-button-reset span").text("Stop");
 			$("#control-button-reset i").removeClass("glyphicon-refresh").addClass("glyphicon-stop");
-			
-			
+
+
 			$("#timer-splits").css('top', "0px");
 		}
-		
+
 		$("#control-button-skip").removeClass("disabled");
 		$("#control-button-back").removeClass("disabled");
 	}
-	
+
 	if(window.current_run.started)
 	{
 		$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
-	
+
 		//Move splits
 		var container_height = q("#timer-splits-container").clientHeight;
 		var split_tr = $("#timer-splits tr")[window.current_run.current_split].offsetTop;
-		
+
 		var total_height = q("#timer-splits").clientHeight;
-		
+
 		if(split_tr > container_height / 2 && total_height > container_height)
 		{
 			this.split_scroll_status = window.current_run.current_split;
-			
+
 			while((split_tr - (container_height / 2)) < $("#timer-splits tr")[this.split_scroll_status].offsetTop)
 				this.split_scroll_status--;
-			
+
 			$("#timer-splits").css('top', "-" + $("#timer-splits tr")[this.split_scroll_status].offsetTop + "px");
 		}
 	}
@@ -643,7 +643,7 @@ Actions.prototype.timer_start_split = function()
 		$("#control-button-reset span").text("Reset");
 		$("#control-button-reset i").removeClass("glyphicon-stop").addClass("glyphicon-refresh");
 	}
-	
+
 	if(window.current_run.current_split + 1 == window.current_timer.splits.length && window.current_timer.timer_type == Timer.Type.RTA)
 	{
 		$("#control-button-play span").text("Stop");
@@ -656,9 +656,9 @@ Actions.prototype.timer_split_prev = function()
 	$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
 	window.current_run.prev_split();
 	$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
-	
+
 	this.update();
-	
+
 	//Removing current split
 	$($("#timer-splits tr")[window.current_run.current_split].querySelector(".ref")).html(msec_to_string(window.current_timer.splits[window.current_run.current_split].pb_split));
 	$($("#timer-splits tr")[window.current_run.current_split].querySelector(".time")).html("");
@@ -672,7 +672,7 @@ Actions.prototype.timer_split_skip = function()
 		$($("#timer-splits tr")[window.current_run.current_split].querySelector(".time")).html("-");
 		$($("#timer-splits tr")[window.current_run.current_split].querySelector(".ref")).html("-");
 		window.current_run.next_split();
-	
+
 		if(window.current_run.started)
 			$("#timer-splits tr")[window.current_run.current_split].classList.add("current");
 		else
@@ -682,7 +682,7 @@ Actions.prototype.timer_split_skip = function()
 			$("#control-button-reset span").text("Reset");
 			$("#control-button-reset i").removeClass("glyphicon-stop").addClass("glyphicon-refresh");
 		}
-		
+
 		if(window.current_run.current_split + 1 == window.current_timer.splits.length && window.current_timer.timer_type == Timer.Type.RTA)
 		{
 			$("#control-button-play span").text("Stop");
@@ -718,7 +718,7 @@ Actions.prototype.timer_save_splits = function()
 
 Actions.prototype.timer_edit_timer = function()
 {
-	
+
 }
 
 Actions.prototype.timer_close_timer = function()
@@ -731,5 +731,5 @@ Actions.prototype.timer_close_timer = function()
 
 Actions.prototype.timer_export_timer = function()
 {
-	
+
 }
