@@ -107,4 +107,10 @@ $(function()
 	action_handler = new Actions();
 	action_handler.init();
 	action_handler.load_page("main-menu");
+    
+    //Initializing Crouton notif settings
+    Crouton.DEFAULT_ELEMENT = "#page-content-wrapper";
+    
+    gamepad = new Gamepad();
+    gamepad.load_config();
 });

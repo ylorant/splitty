@@ -24,10 +24,10 @@ Actions.bind_element_action = function(el)
 }
 
 Actions.bind_element_page = function(el)
-	{
-		var destination = el.dataset.page;
-		el.addEventListener('click', this.load_page.bind(this, destination));
-	}
+{
+	var destination = el.dataset.page;
+	el.addEventListener('click', this.load_page.bind(this, destination));
+}
 
 // Sets events and triggers on buttons
 Actions.prototype.init = function()
@@ -246,7 +246,6 @@ Actions.prototype.update_sob = function()
 		$("#sum-of-bests").html(msec_to_string(sum_of_bests));
 	else
 		$("#sum-of-bests").html("-");
-		
 }
 
 Actions.prototype.load_page = function(page)
@@ -564,7 +563,6 @@ Actions.prototype.handle_keydown = function(ev)
 			}
 		}
 	}
-	
 }
 
 Actions.prototype.handle_keyup = function(ev)
@@ -727,9 +725,4 @@ Actions.prototype.timer_close_timer = function()
 	window.current_timer = null;
 	this.load_empty_timer();
 	this.load_page("main-menu");
-}
-
-Actions.prototype.timer_export_timer = function()
-{
-	
 }
