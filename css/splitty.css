@@ -350,3 +350,33 @@ div.crouton-notification
 div.crouton-confirm { background-color: #dff0d8; color: #3c763d; border-color: #d6e9c6; }
 div.crouton-error { background-color: #f2dede; color: #a94442; border-color: #ebccd1; }
 div.crouton-info { background-color: #d9edf7; color: #31708f; border-color: #bce8f1; }
+
+.my-tooltip
+{
+    display: inline-block;
+    position: relative;
+}
+
+.my-tooltip-content
+{
+    display: none;
+}
+
+.my-tooltip-content.active
+{
+    display: block;
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    padding: 5px;
+    width: 200px;
+    font-size: 11px;
+    line-height: 14px;
+    white-space: normal;
+    
+    border-radius: 3px;
+    color: white;
+    background: rgba(0, 0, 0, 1);
+    
+    z-index: 10;
+}

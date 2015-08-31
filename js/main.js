@@ -21,6 +21,19 @@ $.prototype.clone = function()
 	return $(this[0].cloneNode(true));
 }
 
+$.prototype.child = function(q)
+{
+    return $(this[0].querySelector(q));
+}
+
+$.prototype.val = function(v)
+{
+    return this.each(function(i)
+    {
+        i.value = v;
+    });
+}
+
 //// end ki.js extensions ////
 
 /// Not ki.js but still useful functions ///
@@ -110,6 +123,8 @@ $(function()
     
     //Initializing Crouton notif settings
     Crouton.DEFAULT_ELEMENT = "#page-content-wrapper";
+    
+    $('.my-tooltip').tooltip('.my-tooltip-icon', '.my-tooltip-content');
     
     gamepad = new Gamepad();
     gamepad.load_config();

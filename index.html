@@ -83,7 +83,7 @@
                                 <p>
                                     WebSplit is a tiny full HTML5-JS speedrun timer that you can run in your browser. 
                                     It'll allow to time your runs, create splits, 
-                                    measure your performance compared to previous runs in real time and more to come&nbsp;!
+                                    measure your performance compared to previous runs in real time and more to come!
                                 </p>
                                 <p>
                                     To begin creating a new timer, click on the <code>New Timer</code> button. 
@@ -115,12 +115,11 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div id="page-import-timer" class="page col-lg-12">
                         <h1>Import timer</h1>
                         <form id="load-timer-form" class="form-horizontal">
                             <div class="form-group">
-                                <label for="form-import-timer-file" class="col-sm-3 control-label">Choose the timer file you want to import :</label>
+                                <label for="form-import-timer-file" class="col-sm-3 control-label">Choose the timer file you want to import:</label>
                                 <div class="col-sm-5">
                                     <input type="file" class="form-control" id="form-import-timer-file" />
                                 </div>
@@ -132,12 +131,11 @@
                             </div>
                         </form>
                     </div>
-                    
                     <div id="page-load-timer" class="page col-lg-12">
                         <h1>Load timer</h1>
                         <form id="load-timer-form" class="form-horizontal">
                             <div class="form-group">
-                                <label for="form-load-timer-timer-name" class="col-sm-3 control-label">Select the timer you want to load :</label>
+                                <label for="form-load-timer-timer-name" class="col-sm-3 control-label">Select the timer you want to load:</label>
                                 <div class="col-sm-4">
                                     <select id="form-load-timer-timer-name" class="form-control">
                                         <option value="">---</option>
@@ -160,15 +158,31 @@
                             
                             <div class="form-group">
                                 <label for="form-edit-timer-name" class="col-sm-2 control-label">Timer name:</label>
-                                <div class="col-sm-5">
-                                    <input type="text" id="form-edit-timer-name" class="form-control" placeholder="This will be shown in your timer list" autocomplete="on" />
+                                <div class="col-sm-5 input-group">
+                                    <input type="text" id="form-edit-timer-name" class="form-control" placeholder="" autocomplete="on" />
+                                    <span class="input-group-addon">
+                                        <span class="my-tooltip">
+                                            <i class="my-tooltip-icon glyphicon glyphicon-question-sign"></i>
+                                            <span class="my-tooltip-content">
+                                                The name shown in the list of your saved timers. It will not be shown in the timer view.
+                                            </span>
+                                        </span>
+                                    </span>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="form-edit-timer-name" class="col-sm-2 control-label">Game name:</label>
-                                <div class="col-sm-10">
-                                    <input type="text" id="form-edit-game-name" class="form-control" placeholder="e.g. The Legend of Zelda : Ocarina of Time 100%" autocomplete="on" />
+                                <label for="form-edit-game-name" class="col-sm-2 control-label">Game/category name:</label>
+                                <div class="col-sm-5 input-group">
+                                    <input type="text" id="form-edit-game-name" class="form-control" placeholder="e.g. The Legend of Zelda: Ocarina of Time 100%" autocomplete="on" />
+                                    <span class="input-group-addon">
+                                    	<span class="my-tooltip">
+                                            <i class="my-tooltip-icon glyphicon glyphicon-question-sign"></i>
+                                            <span class="my-tooltip-content">
+                                                The name that will be shown on the top of the timer. Usually, the game name with the run category.
+                                            </span>
+                                        </span>
+                                    </span>
                                 </div>
                             </div>
                             
@@ -187,11 +201,14 @@
                                 
                                 <!-- Split form segment template -->
                                 <div class="form-group timer-split hidden" id="edit-timer-split-template">
-                                    <div class="col-sm-6 col-lg-8">
+                                    <div class="col-sm-4 col-lg-6">
                                         <input type="text" class="form-control split-name" name="split[$i]" placeholder="Split name" />
                                     </div>
                                     <div class="col-sm-3 col-lg-2">
                                         <input type="text" class="form-control split-reference" name="reference_time[$i]" placeholder="Reference time (cumulative)" />
+                                    </div>
+                                    <div class="col-sm-3 col-lg-2">
+                                        <input type="text" class="form-control split-gold" name="reference_time[$i]" placeholder="Reference time (cumulative)" />
                                     </div>
                                     <div class="col-sm-3 col-lg-2 btn-group">
                                         <a class="btn btn-default" title="Move split up" data-action="edit_timer_move_up">
@@ -207,11 +224,14 @@
                                 </div>
 
                                 <div class="form-group timer-split">
-                                    <div class="col-sm-6 col-lg-8">
+                                    <div class="col-sm-4 col-lg-6">
                                         <input type="text" class="form-control split-name" name="split[0]" placeholder="Split name" />
                                     </div>
                                     <div class="col-sm-3 col-lg-2">
                                         <input type="text" class="form-control split-reference" name="reference_time[0]" placeholder="Reference time (cumulative)" />
+                                    </div>
+                                    <div class="col-sm-3 col-lg-2">
+                                        <input type="text" class="form-control split-gold" name="gold_time[0]" placeholder="Gold time (split only)" />
                                     </div>
                                     <div class="col-sm-3 col-lg-2 btn-group">
                                         <a class="btn btn-default" title="Move split up" data-action="edit_timer_move_up">
@@ -301,7 +321,7 @@
                                 <p>
                                     Now you've created or loaded your timer, and you're ready to play !
                                     Just click on the <code>Start</code> button below to start the timer.
-                                    Then, you have 3 possible actions :
+                                    Then, you have 3 possible actions:
                                 </p>
                                 
                                 <ul>
@@ -313,7 +333,7 @@
                                 <p>
                                     With these actions, you should be able to manage your run quite easily.
                                     Of course, if you're running, aiming and clicking on buttons is quite hard. To address this issue, you can also
-                                    use keyboard shortcuts to do these actions :
+                                    use keyboard shortcuts to do these actions:
                                 </p>
                                 
                                 <ul>
@@ -337,6 +357,7 @@
     <script src="js/lib/ki.min.js"></script>
     <script src="js/lib/ki.extend.min.js"></script>
     <script src="js/lib/crouton.js"></script>
+    <script src="js/lib/tooltip.js"></script>
     <script src="js/timer.js"></script>
     <script src="js/gamepad.js"></script>
     <script src="js/run.js"></script>

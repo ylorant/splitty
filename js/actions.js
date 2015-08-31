@@ -360,6 +360,29 @@ Actions.prototype.refresh_timer_list = function()
 	}
 }
 
+Actions.prototype.reset_timer_edit_form = function()
+{
+	//Emptying all global info
+	if(typeof window.current_timer != null)
+	{
+		$("#form-edit-timer-name").val(window.current_timer.timer_name);
+		$("#form-edit-game-name").val(window.current_timer.run_name);
+	}
+	else
+	{
+		$("#form-edit-timer-name").val("");
+		$("#form-edit-game-name").val("");
+	}
+	
+	q("#form-edit-timer-type-manual").checked = false;
+	q("#form-edit-timer-type-rta").checked = true;
+	
+	//Emptying splits
+	var split_template = $("#edit-timer-split-template");
+	$(".timer-split").remove();
+	$("#form-edit-timer-split-list").prepend(split_template);
+}
+
 // Registered actions, linked to buttons and everything, so-called "controllers"
 
 Actions.prototype.edit_timer_add_split = function()
@@ -402,7 +425,10 @@ Actions.prototype.edit_timer_submit = function()
 	var new_timer = null;
 	
 	if(window.current_timer)
+	{
 		new_timer = window.current_timer;
+		new_timer.splits = []; // Empty splits to avoid duplication
+	}
 	else
 		new_timer = new Timer();
 	
@@ -446,6 +472,7 @@ Actions.prototype.edit_timer_submit = function()
 	
 	new_timer.save();
 	this.refresh_timer_list();
+	this.reset_timer_edit_form();
 	this.load_timer(new_timer);
 	this.load_page('timer-control');
 }
@@ -716,7 +743,49 @@ Actions.prototype.timer_save_splits = function()
 
 Actions.prototype.timer_edit_timer = function()
 {
-	
+	//Additional security ensuring we don't do stupid things
+	if(window.current_timer != null)
+	{
+		//Replacing timer data into edition fields
+		$("#form-edit-timer-name").val(window.current_timer.timer_name);
+		$("#form-edit-game-name").val(window.current_timer.run_name);
+		
+		q("#form-edit-timer-type-rta").checked = false;
+		q("#form-edit-timer-type-manual").checked = false;
+		
+		switch(window.current_timer.timer_type)
+		{
+			case Timer.Type.RTA:
+				q("#form-edit-timer-type-rta").checked = true;		
+				break;
+				
+			case Timer.Type.MANUAL:
+				q("#form-edit-timer-type-manual").checked = true;
+				break;
+		}
+		
+		//putting back splits
+		var split_template = $("#edit-timer-split-template");
+		$(".timer-split").remove();
+		$("#form-edit-timer-split-list").prepend(split_template);
+		
+		for(var i in window.current_timer.splits)
+		{
+			var new_split = split_template.clone();
+			new_split.removeClass("hidden");
+			new_split.removeAttr("id");
+			
+			new_split.child('.split-name').val(window.current_timer.splits[i].name);
+			new_split.child('.split-gold').val(msec_to_string(window.current_timer.splits[i].split_best, false, 3));
+			new_split.child('.split-reference').val(msec_to_string(window.current_timer.splits[i].pb_split, false, 3));
+			
+			$('#form-edit-timer-split-list .timer-split:last-of-type').after(new_split);	
+			$(".timer-split:last-of-type [data-action]").each(Actions.bind_element_action, window);
+		}
+		
+		
+		this.load_page('edit-timer');
+	}
 }
 
 Actions.prototype.timer_close_timer = function()

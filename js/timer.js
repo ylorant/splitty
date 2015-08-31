@@ -44,17 +44,15 @@ Timer.prototype.delete = function()
 	if(typeof localStorage != 'undefined')
 	{
 		delete localStorage[this.timer_name];
-		var names = JSON.parse(localStorage.timer_names);
-		if(typeof names.pop == "undefined")
-			names = [];
+		var names = [];
 		
-		var i = names.indexOf(this.timer_name);
-		if(i != -1)
+		for(var i in localStorage)
 		{
-			delete names[i];
-			names.length--;
-			localStorage.timer_names = JSON.stringify(names);
+			if(typeof i == "string" && i != "timer_names" && i != "handle_position")
+				names.push(i);
 		}
+		
+		localStorage.timer_names = JSON.stringify(names);
 	}
 }
 
