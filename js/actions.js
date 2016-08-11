@@ -363,7 +363,7 @@ Actions.prototype.refresh_timer_list = function()
 Actions.prototype.reset_timer_edit_form = function()
 {
 	//Emptying all global info
-	if(typeof window.current_timer != null)
+	if(window.current_timer != null)
 	{
 		$("#form-edit-timer-name").val(window.current_timer.timer_name);
 		$("#form-edit-game-name").val(window.current_timer.run_name);
