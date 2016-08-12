@@ -46,10 +46,11 @@ Timer.prototype.delete = function()
 		delete localStorage[this.timer_name];
 		var names = [];
 		
-		for(var i in localStorage)
+		for(var i = 0; i < localStorage.length; i++)
 		{
-			if(typeof i == "string" && i != "timer_names" && i != "handle_position")
-				names.push(i);
+			var key = localStorage.key(i);
+			if(key != "timer_names")
+				names.push(key);
 		}
 		
 		localStorage.timer_names = JSON.stringify(names);
@@ -71,6 +72,19 @@ Timer.prototype.save_splits = function(run)
 		if(k > 0)
 			this.splits[k].pb_duration -= run.split_times[k - 1];
 	}
+	
+	this.save();
+}
+
+Timer.prototype.save_bests = function(run)
+{
+	for(var k in this.splits)
+	{
+		if(run.best_splits[k] != null && (this.splits[k].split_best > run.best_splits[k] || this.splits[k].split_best == null))
+			this.splits[k].split_best = run.best_splits[k];
+	}
+	
+	run.best_time_updated = false;
 	
 	this.save();
 }

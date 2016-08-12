@@ -164,7 +164,7 @@ Actions.prototype.update = function(set_split_time)
 		
 		$("#global-time").html(window.current_run.get_time(true, 1));
 	
-		if(rel_split && (rel_split > 0 || set_split_time))
+		if(rel_split && (rel_split > 0 || set_split_time))
 		{
 			var rel_human = msec_to_time(rel_split, 1);
 			var rel_str = rel_split > 0 ? "+" : "-";
@@ -212,8 +212,11 @@ Actions.prototype.update = function(set_split_time)
 				classes += " split-late";
 			
 			var rel_human = msec_to_time(difference, 1);
-			var rel_str = difference > 0 ? "+" : "-";
-
+			var rel_str = "";
+			
+			if(window.current_timer.splits[window.current_run.current_split].pb_duration != null)
+				rel_str = difference > 0 ? "+" : "-";
+			
 			if(rel_human.hr > 0)
 				rel_str += rel_human.hr + ":" + (rel_human.mn < 10 ? "0" : "");
 			if(rel_human.mn > 0)
@@ -235,9 +238,13 @@ Actions.prototype.update_sob = function()
 	console.log("Refreshing Sum of Bests");
 	for(var i in window.current_timer.splits)
 	{
-		console.log("Split '" + window.current_timer.splits[i].name + "': " + window.current_timer.splits[i].split_best);
-		if(sum_of_bests != null && window.current_timer.splits[i].split_best)
-			sum_of_bests += window.current_timer.splits[i].split_best;
+		var best_split = window.current_timer.splits[i].split_best;
+		if(window.current_run)
+			best_split = window.current_run.best_splits[i];
+		
+		console.log("Split '" + window.current_timer.splits[i].name + "': " + best_split);
+		if(sum_of_bests != null && best_split)
+			sum_of_bests += best_split;
 		else
 			sum_of_bests = null;
 	}
@@ -621,7 +628,12 @@ Actions.prototype.timer_start_split = function()
 	{
 		if(window.current_timer)
 		{
-			this.load_timer(window.current_timer);
+			// If there is still a run going (previous run ended), do a reset
+			if(window.current_run)
+				this.timer_stop_reset();
+			else
+				this.load_timer(window.current_timer);
+			
 			window.current_run = new Run(window.current_timer);
 			window.current_run.start();
 			
@@ -729,6 +741,13 @@ Actions.prototype.timer_stop_reset = function()
 	}
 	else
 	{
+		if(window.current_run && window.current_run.best_time_updated)
+		{
+			var save_bests = confirm("There have been new best splits. Save them ?");
+			if(save_bests)
+				window.current_timer.save_bests(window.current_run);
+		}
+		
 		window.current_run = null;
 		this.load_timer(window.current_timer);
 		$("#control-button-play span").text("Start");
@@ -738,6 +757,7 @@ Actions.prototype.timer_stop_reset = function()
 
 Actions.prototype.timer_save_splits = function()
 {
+	window.current_timer.save_bests(window.current_run); // Save best splits
 	window.current_timer.save_splits(window.current_run);
 }
 

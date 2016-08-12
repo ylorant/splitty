@@ -4,9 +4,14 @@ function Run(timer)
 	this.elapsed = 0; // Number of milliseconds elapsed
 	this.start_time = null; // Instance of Date
 	this.split_times = [];
+	this.best_splits = [];
 	this.current_split = 0;
 	this.started = false;
+	this.best_time_updated = false;
 	
+	// Fill best splits with timer's best splits
+	for(var i in timer.splits)
+		this.best_splits[i] = timer.splits[i].split_best;
 }
 
 Run.prototype.start = function()
@@ -32,10 +37,10 @@ Run.prototype.split = function()
 		duration -= this.split_times[this.current_split - 1];
 	
 	//Check for PB
-	if(this.timer.splits[this.current_split].split_best == null || duration < this.timer.splits[this.current_split].split_best)
+	if(this.best_splits[this.current_split] == null || duration < this.best_splits[this.current_split])
 	{
-		this.timer.splits[this.current_split].split_best = duration;
-		this.timer.save();
+		this.best_splits[this.current_split] = duration;
+		this.best_time_updated = true;
 		Actions.get_manager().update_sob();
 	}
 	
@@ -70,6 +75,9 @@ Run.prototype.prev_split = function()
 {
 	if(this.current_split > 0)
 	{
+		// Forget the best split that may have been overriden
+		this.best_splits[this.current_split] = this.timer.splits[this.current_split].split_best;
+		
 		this.current_split--;
 		
 		if(this.timer.timer_type == Timer.Type.MANUAL)
