@@ -279,7 +279,7 @@ Actions.prototype.load_timer = function(timer)
 	$("#run-count").text(timer.run_count);
 	
 	//Setting global time
-	$("#global-time").html("0:00.<small>0</small>");
+	$("#global-time").html(msec_to_string(-1 * timer.start_delay, true, 1));
 	
 	$("#timer-splits tr").remove();
 	for(var i in timer.splits)
@@ -379,6 +379,7 @@ Actions.prototype.reset_timer_edit_form = function()
 	{
 		$("#form-edit-timer-name").val("");
 		$("#form-edit-game-name").val("");
+		$("#form-edit-start-delay").val("");
 	}
 	
 	q("#form-edit-timer-type-manual").checked = false;
@@ -441,6 +442,7 @@ Actions.prototype.edit_timer_submit = function()
 	
 	new_timer.timer_name = q("#form-edit-timer-name").value;
 	new_timer.run_name = q("#form-edit-game-name").value;
+	new_timer.start_delay = string_to_msec(q("#form-edit-start-delay").value);
 	
 	if(q("#form-edit-timer-type-rta").checked == true)
 		new_timer.timer_type = Timer.Type.RTA;
@@ -505,7 +507,10 @@ Actions.prototype.edit_timer_cancel = function()
 		
 		this.edit_timer_add_split();
 		
-		this.load_page("main-menu");
+		if(!window.current_timer)
+			this.load_page("main-menu");
+		else
+			this.load_page("timer-control");
 	}
 }
 
@@ -610,6 +615,10 @@ Actions.prototype.timer_start_split = function()
 	{
 		if(window.current_timer.timer_type == Timer.Type.RTA)
 		{
+			// Do not do anything if the timer is still below 0
+			if(window.current_run.elapsed < 0)
+				return;
+			
 			$("#timer-splits tr")[window.current_run.current_split].classList.remove("current");
 			window.current_run.split();
 		}

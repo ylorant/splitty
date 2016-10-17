@@ -16,7 +16,7 @@ function Run(timer)
 
 Run.prototype.start = function()
 {
-	this.start_time = new Date();
+	this.start_time = new Date((new Date()).getTime() + this.timer.start_delay);
 	this.started = true;
 	
 	this.timer.run_count++;

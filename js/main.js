@@ -73,6 +73,10 @@ function msec_to_string(time, use_markup, res)
 {
     human_time = msec_to_time(time, res);
     var str = "";
+    
+    if(time < 0)
+        str += "-";
+    
     if(human_time.hr > 0)
         str += human_time.hr + ":" + (human_time.mn < 10 ? "0" : "");
     // if(human_time.mn > 0)

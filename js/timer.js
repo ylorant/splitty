@@ -13,6 +13,7 @@ function Timer()
 {
 	this.timer_name = "";
 	this.run_name = "";
+	this.start_delay = 0;
 	this.run_count = 0;
 	this.splits = [];
 	this.timer_type = Timer.Type.RTA;
@@ -113,9 +114,10 @@ Timer.load = function(timer_name)
 
 	if(typeof localStorage != 'undefined' && typeof localStorage[timer_name] != 'undefined')
 	{
-		
+		// Load the raw data objects (not Timer objects)
 		var timer_obj = JSON.parse(localStorage[timer_name]);
 		
+		// Hydrate the timer properties
 		for(var k in timer_obj)
 			new_timer[k] = timer_obj[k];
 		
