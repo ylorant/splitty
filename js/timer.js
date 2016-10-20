@@ -21,6 +21,14 @@ function Timer()
 
 Timer.Type = { RTA: 0, MANUAL: 1 };
 
+Timer.exists = function(timer_name)
+{
+	if(typeof localStorage == "undefined")
+		return false;
+	
+	return typeof localStorage[timer_name] != "undefined";
+}
+
 Timer.prototype.save = function()
 {
 	if(typeof localStorage != 'undefined')

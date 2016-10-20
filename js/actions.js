@@ -432,6 +432,7 @@ Actions.prototype.edit_timer_submit = function()
 {
 	var new_timer = null;
 	
+	// Check if editing timer or not
 	if(window.current_timer)
 	{
 		new_timer = window.current_timer;
@@ -477,6 +478,18 @@ Actions.prototype.edit_timer_submit = function()
 	{
 		alert("You have to create at least one split in the timer to be able to save it.");
 		return false;
+	}
+	
+	// Forbidden timer names
+	if(new_timer.timer_name == "timer_names")
+		return alert("You can't use this timer name.");
+	
+	// Before saving, check if the timer exists in the storage.
+	if(Timer.exists(new_timer.timer_name))
+	{
+		var confirmOverwrite = confirm("There is already a timer with this name. Do you really want to overwrite it ?");
+		if(!confirmOverwrite)
+			return;
 	}
 	
 	new_timer.save();
@@ -778,6 +791,7 @@ Actions.prototype.timer_edit_timer = function()
 		//Replacing timer data into edition fields
 		$("#form-edit-timer-name").val(window.current_timer.timer_name);
 		$("#form-edit-game-name").val(window.current_timer.run_name);
+		$("#form-edit-start-delay").val(msec_to_string(window.current_timer.start_delay, false, 3));
 		
 		q("#form-edit-timer-type-rta").checked = false;
 		q("#form-edit-timer-type-manual").checked = false;
