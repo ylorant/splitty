@@ -31,8 +31,8 @@ If you want to help by giving some of your time to improve this little project,
 you can clone this repository and then do some pull requests, they'll be implemented after verification :)
 
 If you want to help too but you don't know how to program but you have some neat ideas you find could help, 
-feel free to open an [https://github.com/ylorant/splitty/issues](issue) describing your idea 
+feel free to open an [issue](https://github.com/ylorant/splitty/issues) describing your idea 
 and label it as an **enhancement**.
 
-If you're using the timer and come across a bug, feel free to open an [https://github.com/ylorant/splitty/issues](issue) too
+If you're using the timer and come across a bug, feel free to open an [issue](https://github.com/ylorant/splitty/issues) too
 describing in what the bug consist, what lead you to come across it, and if possible an exported file of your timer and/or screenshots.
