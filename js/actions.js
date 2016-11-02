@@ -441,6 +441,10 @@ Actions.prototype.edit_timer_submit = function()
 	else
 		new_timer = new Timer();
 	
+	// If nothing has been entered as start delay, just set 0
+	if(q("#form-edit-start-delay").value.length == 0)
+		q("#form-edit-start-delay").value = "0";
+	
 	new_timer.timer_name = q("#form-edit-timer-name").value;
 	new_timer.run_name = q("#form-edit-game-name").value;
 	new_timer.start_delay = string_to_msec(q("#form-edit-start-delay").value);
@@ -579,9 +583,8 @@ Actions.prototype.import_timer_submit = function()
 		{
 			var contents = e.target.result;
 			var timer = Timer.import_json(contents);
-			timer.save();
 			this.load_timer(timer);
-			this.load_page("timer-control");
+			this.timer_edit_timer();
 		}).bind(this);
   		
   		r.readAsText(file);

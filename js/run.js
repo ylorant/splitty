@@ -60,8 +60,8 @@ Run.prototype.split_manual = function(split_time)
 	//Check for PB
 	if(this.timer.splits[this.current_split].split_best == null || split_time < this.timer.splits[this.current_split].split_best)
 	{
-		this.timer.splits[this.current_split].split_best = split_time;
-		this.timer.save();
+		this.best_splits[this.current_split] = split_time;
+		this.best_time_updated = true;
 		Actions.get_manager().update_sob();
 	}
 	

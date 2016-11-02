@@ -137,8 +137,12 @@ Timer.load = function(timer_name)
 			if(typeof new_timer.splits[i].pb != "undefined")
 				delete new_timer.splits[i].pb;
 			
-			if(!new_timer.splits[i].split_best || (new_timer.splits[i].pb_duration && new_timer.splits[i].split_best > new_timer.splits[i].pb_duration))
+			if(!new_timer.splits[i].split_best
+			 || new_timer.splits[i].split_best < 0
+			 || (new_timer.splits[i].pb_duration && new_timer.splits[i].split_best > new_timer.splits[i].pb_duration))
+			{
 				new_timer.splits[i].split_best = new_timer.splits[i].pb_duration;
+			}
 		}
 		
 		new_timer.save();
@@ -154,6 +158,22 @@ Timer.import_json = function(json)
 	
 	for(var k in obj)
 			new_timer[k] = obj[k];
+ 
+	new_timer.compute_split_lengths();
+	
+	// If we haven't got any gold for the split, compute it
+	for(var i in new_timer.splits)
+	{	
+		if(typeof new_timer.splits[i].pb != "undefined")
+			delete new_timer.splits[i].pb;
+		
+		if(!new_timer.splits[i].split_best
+		 || new_timer.splits[i].split_best < 0
+		 || (new_timer.splits[i].pb_duration && new_timer.splits[i].split_best > new_timer.splits[i].pb_duration))
+		{
+			new_timer.splits[i].split_best = new_timer.splits[i].pb_duration;
+		}
+	}
 	
 	return new_timer;
 }
