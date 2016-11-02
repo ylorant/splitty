@@ -176,11 +176,11 @@
         border-right: 10px solid transparent;
     }
 
-    #timer-wrapper .time.ahead.split-ahead { color: #15BC33; }
-    #timer-wrapper .time.ahead.split-late { color: #AEE711; }
-    #timer-wrapper .time.late.split-ahead { color: #E79D11; }
-    #timer-wrapper .time.late.split-late { color: #E71111; }
-    #timer-wrapper .time.split-gold { color: #FFDF00; }
+    .time.ahead.split-ahead { color: #15BC33; }
+    .time.ahead.split-late { color: #AEE711; }
+    .time.late.split-ahead { color: #E75811; }
+    .time.late.split-late { color: #E71111; }
+    .time.split-gold { color: #FFDF00; }
 
     #timer-splits tr td:first-child,
     #run-globals tr td:first-child
