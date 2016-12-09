@@ -44,6 +44,7 @@ Element.prototype.q = Element.prototype.querySelector;
 /// end not ki.js but still useful functions ///
 
 var action_handler = null;
+var storage = null;
 
 window.current_timer = null;
 
@@ -121,6 +122,10 @@ function string_to_msec(str)
 //Onload event - init everything
 $(function()
 {
+    // Initialize storage$
+    storage = new Storage();
+    storage.init();
+    
 	action_handler = new Actions();
 	action_handler.init();
 	action_handler.load_page("main-menu");
@@ -129,7 +134,4 @@ $(function()
     Crouton.DEFAULT_ELEMENT = "#page-content-wrapper";
     
     $('.my-tooltip').tooltip('.my-tooltip-icon', '.my-tooltip-content');
-    
-    gamepad = new Gamepad();
-    gamepad.load_config();
 });

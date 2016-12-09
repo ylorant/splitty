@@ -74,20 +74,20 @@
         <div id="page-content-wrapper">
             <div class="container-fluid">
                 <div class="row">
-                    <div id="page-main-menu" class="page">
-                        <div class="col-lg-12 title">
-                            <h1>Splitty</h1>
-                        </div>
+                    <div id="page-main-menu" class="page col-lg-12">
+                        <h1>Splitty</h1>
                         <div class="row">
                             <div class="col-lg-12 text-justify">
                                 <p>
-                                    WebSplit is a tiny full HTML5-JS speedrun timer that you can run in your browser. 
+                                    Splitty is a tiny full HTML5-JS speedrun timer that you can run in your browser. 
                                     It'll allow to time your runs, create splits, 
                                     measure your performance compared to previous runs in real time and more to come!
                                 </p>
                                 <p>
-                                    To begin creating a new timer, click on the <code>New Timer</code> button. 
-                                    If you already have a saved one, click on the <code>Load Timer</code> button.
+                                    To begin creating a new timer, click on the <code>New Timer</code> button. <br />
+                                    If you already have a saved one, click on the <code>Load Timer</code> button. <br />
+                                    If you just changed browsers and have a saved timer on your hard drive, you can import it using the <code>Import timer</code> button. <br />
+                                    Finally, you can change your global settings using the <code>Settings</code> button.
                                 </p>
                             </div>
                         </div>
@@ -110,6 +110,12 @@
                                     <a class="btn btn-primary btn-block btn-lg" data-page="import-timer">
                                         <i class="glyphicon glyphicon-log-in"></i>
                                         <span>Import Timer</span>
+                                    </a>
+                                </div>
+                                <div class="well inline-block">
+                                    <a class="btn btn-warning btn-block btn-lg" data-page="settings">
+                                        <i class="glyphicon glyphicon-wrench"></i>
+                                        <span>Settings</span>
                                     </a>
                                 </div>
                             </div>
@@ -360,6 +366,65 @@
                             </div>
                         </div>
                     </div>
+                    <div id="page-settings" class="page col-lg-12">
+                        <h1>Settings</h1>
+                        
+                        <p>
+                            Here are the settings that don't rely on the timer, and will work during all of your timer usage.
+                        </p>
+                        
+                        <h2>Gamepad settings</h2>
+                        <p>
+                            You can use some buttons of your gamepad through Splitty to split during your runs if you're playing on emulator.
+                            This has been made because since the timer is in a browser, it's impossible to split while being on the emulator window.
+                            Of course, these buttons are configurable, and you can select which controller you'll be using, in case you have more than one.
+                        </p>
+                        
+                        <form id="settings-gamepad">
+                            <div class="row">
+                                <div class="col-lg-5 col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="settings-gamepad-use" /> Use a gamepad
+                                        </label>
+                                    </div>    
+                                    
+                                    <label for="settings-gamepad-id">Gamepad to use:</label>
+                                    <select id="settings-gamepad-id" class="form-control" data-action="settings_gamepad_change">
+                                        
+                                    </select>
+                                </div>
+                                
+                                <div class="col-lg-6 col-lg-offset-1 col-xs-12 form-horizontal">
+                                    <h3>Button bindings</h3>
+                                    <div class="form-group">
+                                        <label for="settings-gamepad-button-split" class="col-xs-2 control-label">Start/Split:</label>
+                                        <div class="col-xs-10 input-group">
+                                            <input type="text" class="form-control settings-gamepad-button" disabled id="settings-gamepad-button-split" data-buttontype="split" value="" />
+                                            <span class="input-group-btn">
+                                                <input type="button" data-action="settings_gamepad_capture_toggle" data-buttontype="split" class="btn btn-primary settings-gamepad-capture" value="Capture" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings-gamepad-button-reset" class="col-xs-2 control-label">Stop/Reset:</label>
+                                        <div class="col-xs-10 input-group">
+                                            <input type="text" class="form-control settings-gamepad-button" disabled id="settings-gamepad-button-reset" data-buttontype="reset" data-button="" value="" />
+                                            <span class="input-group-btn">
+                                                <input type="button" data-action="settings_gamepad_capture_toggle" data-buttontype="reset" class="btn btn-primary settings-gamepad-capture" value="Capture" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <hr />
+                        
+                        <div>
+                            <a class="btn btn-primary" data-action="settings_save"><i class="glyphicon glyphicon-floppy-disk"></i> Save</a>
+                            <a class="btn btn-default" data-action="settings_discard">Discard</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -373,6 +438,9 @@
     <script src="js/lib/ki.extend.min.js"></script>
     <script src="js/lib/crouton.js"></script>
     <script src="js/lib/tooltip.js"></script>
+    <script src="js/lib/store.min.js"></script>
+    <script src="js/lib/eventlistener.js"></script>
+    <script src="js/storage.js"></script>
     <script src="js/timer.js"></script>
     <script src="js/gamepad.js"></script>
     <script src="js/run.js"></script>

@@ -6,6 +6,9 @@ function Actions()
 	this.key_down = false;
 	this.table_pos = null;
 	this.split_scroll_status = 0;
+	
+	// Temporary settings when editing them
+	this.current_settings = null;
 }
 
 // Singleton implementation
@@ -20,7 +23,20 @@ Actions.bind_element_action = function(el)
 {
 	var callback = el.dataset.action;
 	if(this[callback])
-		el.addEventListener('click', this[callback].bind(this, el));
+	{
+		var event = 'click';
+		
+		// Special events on actions for some element types
+		switch(el.tagName.toLowerCase())
+		{
+			case 'select':
+				event = 'change';
+				break;
+		}
+		
+		// Binding the event
+		el.addEventListener(event, this[callback].bind(this, el));
+	}
 }
 
 Actions.bind_element_page = function(el)
@@ -78,11 +94,24 @@ Actions.prototype.init = function()
 	
 	$("#timer-splits-container").on(wheel_event, this.on_scroll_splits.bind(this));
 	
-	//Initializing timer list if it isn't already done
-	if(typeof localStorage.timer_names == "undefined" || typeof JSON.parse(localStorage.timer_names).pop == "undefined")
-		localStorage.timer_names = "[]";
+	//Load the gamepad manager
+    this.gamepad = new Gamepad();
+    this.gamepad.events.on('gamepadconnected', this.update_gamepads.bind(this));
+    this.gamepad.events.on('gamepaddisconnected', this.update_gamepads.bind(this));
+    this.gamepad.events.on('buttonpressed', this.handle_gamepad_press.bind(this));
+    this.gamepad.events.on('buttonpressed', this.settings_gamepad_handle_press.bind(this));
+    
+	// Listen for gamepad button presses for splitting and things only when the page is on timer control	
+	$(document).on('pagechanged', function()
+	{
+		if(this.get_page() == "timer-control")
+			this.gamepad.start_polling();
+		else
+			this.gamepad.stop_polling();
+	}.bind(this));
 	
 	this.refresh_timer_list();
+	this.refresh_settings();
 }
 
 Actions.prototype.on_scroll_splits = function(ev)
@@ -106,16 +135,21 @@ Actions.prototype.on_scroll_splits = function(ev)
 
 Actions.prototype.save_handle_position = function(new_height)
 {
-	if(typeof localStorage != "undefined")
-		localStorage.handle_position = new_height;
+	if(Storage.enabled())
+	{
+		this.current_settings['handle_position'] = new_height;
+		Storage.get().set_settings_property('handle_position', new_height);
+	}
 }
 
 Actions.prototype.load_handle_position = function()
 {
-	if(typeof localStorage != "undefined")
+	if(Storage.enabled())
 	{
-		if(localStorage.handle_position)
-			$("#timer-splits-container").css("height", localStorage.handle_position + "px" );
+		var handle_position = Storage.get().get_settings_property('handle_position');
+		
+		if(handle_position)
+			$("#timer-splits-container").css("height", handle_position + "px" );
 	}
 }
 
@@ -262,6 +296,7 @@ Actions.prototype.load_page = function(page)
 	{
 		$(".page").removeClass("active");
 		$(selector).addClass("active");
+		$(document).trigger('pagechanged', page);
 	}
 }
 
@@ -345,7 +380,7 @@ Actions.prototype.load_empty_timer = function()
 
 Actions.prototype.refresh_timer_list = function()
 {
-	if(typeof localStorage != "undefined")
+	if(Storage.enabled())
 	{
 		$("#form-load-timer-timer-name option").remove();
 		
@@ -355,11 +390,11 @@ Actions.prototype.refresh_timer_list = function()
 		
 		q("#form-load-timer-timer-name").appendChild(new_line);
 		
-		var names = JSON.parse(localStorage.timer_names);
+		var names = Storage.get().get_names();
 		for(var k in names)
 		{
 			var option = $(new_line).clone();
-			option[0].value = names[k];
+			option[0].value = k;
 			option.text(names[k]);
 			
 			$("#form-load-timer-timer-name").append(option);	
@@ -391,7 +426,88 @@ Actions.prototype.reset_timer_edit_form = function()
 	$("#form-edit-timer-split-list").prepend(split_template);
 }
 
+Actions.prototype.refresh_settings = function()
+{
+	// Default settings array
+	var default_settings = {
+		'handle_position':      0,
+		'use_gamepad':          false,
+		'gamepad_id':           null,
+		'gamepad_button_split': null,
+		'gamepad_button_reset':null
+	};
+	
+	// Merging default settings and saved ones, the saved ones being primary
+	var saved_settings = Storage.get().get_settings();
+	this.current_settings = Object.assign(default_settings, saved_settings);
+	
+	if(this.current_settings['use_gamepad'])
+		$("#settings-gamepad-use").attr('checked', true);
+	
+    this.gamepad.set_gamepad(this.current_settings.gamepad_id);
+	
+	this.update_gamepads();
+}
+
+Actions.prototype.update_gamepads = function(event, id)
+{
+	if(event) // Show message only if triggered from event
+	{
+		switch(event)
+		{
+			case 'gamepadconnected':
+				Crouton.notify("Gamepad connected: " + Gamepad.get_name_from_id(id));
+				break;
+			case 'gamepaddisconnected':
+				Crouton.notify(CroutonType.ERROR, "Gamepad disconnected: " + Gamepad.get_name_from_id(id));
+				break;
+		}
+	}
+	
+	var gamepads = this.gamepad.connected_gamepads;
+	var selected_gamepad_id = null;
+	
+	// Get currently selected gamepad and delete the list
+	if(this.current_settings.gamepad_id)
+		selected_gamepad_id = this.current_settings.gamepad_id;
+	
+	$("#settings-gamepad-id option").each(function(el)
+	{
+		q("#settings-gamepad-id").removeChild(el);
+	});
+	
+	var default_option = document.createElement("option");
+	default_option.setAttribute('value', "");
+	default_option.innerHTML = "";
+	q("#settings-gamepad-id").appendChild(default_option);
+	
+	for(var i in gamepads)
+	{
+		var pad = gamepads[i];
+		var pad_name = Gamepad.get_name_from_id(pad);
+		
+		var option = document.createElement("option");
+		option.setAttribute('value', pad);
+		option.innerHTML = pad_name;
+		option.selected = selected_gamepad_id === pad;
+		q("#settings-gamepad-id").appendChild(option);
+	}
+	
+	// If there's a gamepad selected, restore the buttons from the current settings
+	var button_setting = null;
+	$(".settings-gamepad-button").each(function(el)
+	{
+		if(q("#settings-gamepad-id option:checked").value)
+			button_setting = "Button " + this.current_settings["gamepad_button_" + el.dataset.buttontype];
+		else
+			button_setting = "";
+		el.value = button_setting;
+	}.bind(this));
+}
+
 // Registered actions, linked to buttons and everything, so-called "controllers"
+
+//// Timer edition ////
 
 Actions.prototype.edit_timer_add_split = function()
 {
@@ -536,17 +652,9 @@ Actions.prototype.load_timer_submit = function()
 	var select = q("#form-load-timer-timer-name");
 	var selected_timer = select.options[select.selectedIndex].value;
 	
-	if(typeof localStorage != "undefined")
-	{
-		var timer_names = JSON.parse(localStorage.timer_names);
-		
-		if(timer_names.indexOf(selected_timer) != -1)
-		{
-			var timer = Timer.load(selected_timer);
-			this.load_timer(timer);
-			this.load_page('timer-control');
-		}
-	}
+	var timer = Timer.load(selected_timer);
+	this.load_timer(timer);
+	this.load_page('timer-control');
 }
 
 Actions.prototype.delete_timer = function()
@@ -556,16 +664,11 @@ Actions.prototype.delete_timer = function()
 	
 	var confirm = window.confirm("Are you sure you want to delete this timer ?");
 	
-	if(confirm && typeof localStorage != "undefined")
+	if(confirm)
 	{
-		var timer_names = JSON.parse(localStorage.timer_names);
-		
-		if(timer_names.indexOf(selected_timer) != -1)
-		{
-			var timer = Timer.load(selected_timer);
-			timer.delete();
-			this.refresh_timer_list();
-		}
+		var timer = Timer.load(selected_timer);
+		timer.delete();
+		this.refresh_timer_list();
 	}
 	
 	return false;
@@ -590,6 +693,8 @@ Actions.prototype.import_timer_submit = function()
   		r.readAsText(file);
   	}
 }
+
+//// Keybindings ////
 
 Actions.prototype.handle_keydown = function(ev)
 {
@@ -624,6 +729,27 @@ Actions.prototype.handle_keyup = function(ev)
 {
 	this.key_down = false;
 }
+
+Actions.prototype.handle_gamepad_press = function(ev, button_index, button)
+{
+	// Actions only work in the timer control view
+	if(this.get_page() == "timer-control")
+	{
+		console.log(button_index);
+		switch(button_index)
+		{
+			case this.current_settings["gamepad_button_split"]:
+				this.timer_start_split();
+				break;
+			
+			case this.current_settings["gamepad_button_reset"]:
+				this.timer_stop_reset();
+				break;
+		}
+	}
+}
+
+//// Timer actions ////
 
 Actions.prototype.timer_start_split = function()
 {
@@ -784,6 +910,7 @@ Actions.prototype.timer_save_splits = function()
 {
 	window.current_timer.save_bests(window.current_run); // Save best splits
 	window.current_timer.save_splits(window.current_run);
+	Crouton.notify(CroutonType.CONFIRM, "Splits saved.");
 }
 
 Actions.prototype.timer_edit_timer = function()
@@ -840,4 +967,94 @@ Actions.prototype.timer_close_timer = function()
 	window.current_timer = null;
 	this.load_empty_timer();
 	this.load_page("main-menu");
+}
+
+//// Settings page actions ////
+
+Actions.prototype.settings_discard = function()
+{
+	this.current_settings = Storage.get().get_settings();
+	
+	if(window.current_timer)
+		this.load_page("timer-control");
+	else
+		this.load_page("main-menu");
+}
+
+Actions.prototype.settings_save = function()
+{
+	Storage.get().set_settings(this.current_settings);
+	
+	if(window.current_timer)
+		this.load_page("timer-control");
+	else
+		this.load_page("main-menu");
+}
+
+Actions.prototype.settings_gamepad_change = function()
+{
+	var selected_gamepad_id = null;
+	
+	if(q("#settings-gamepad-id option:checked"))
+		selected_gamepad_id = q("#settings-gamepad-id option:checked").value;
+	
+	this.gamepad.set_gamepad(selected_gamepad_id);
+	this.current_settings.gamepad_id = selected_gamepad_id;
+	
+	$(".settings-gamepad-button").each(function(el)
+	{
+		this.current_settings["gamepad_button_" + el.dataset.buttontype] = null;
+		el.value = "";
+	}.bind(this));
+}
+
+Actions.prototype.settings_current_capture_key = null;
+
+Actions.prototype.settings_gamepad_capture_toggle = function(el)
+{
+	var captured_key = el.dataset.buttontype;
+	
+	// Key capture isn't enabled, start capturing
+	if(!this.settings_current_capture_key)
+	{
+		var input = q('.settings-gamepad-button[data-buttontype="' + captured_key + '"]');
+		input.value = "Capturing...";
+		
+		this.settings_current_capture_key = captured_key;
+		this.gamepad.start_polling();
+		el.classList.remove('btn-primary');
+		el.classList.add('btn-danger');
+		el.value = "Cancel";
+	}
+	else // Disable key capture
+	{
+		var input = q('.settings-gamepad-button[data-buttontype="' + this.settings_current_capture_key + '"]');
+		input.value = "";
+		this.settings_gamepad_capture_cancel(el);
+	}
+}
+
+Actions.prototype.settings_gamepad_capture_cancel = function(el)
+{
+	this.settings_current_capture_key = null;
+	this.gamepad.stop_polling();
+	el.classList.remove('btn-danger');
+	el.classList.add('btn-primary');
+	el.value = 'Capture';
+}
+
+Actions.prototype.settings_gamepad_handle_press = function(ev, button_index, button)
+{
+	if(this.settings_current_capture_key)
+	{
+		// Updating the selected input
+		var input = q('.settings-gamepad-button[data-buttontype="' + this.settings_current_capture_key + '"]');
+		input.value = "Button " + button_index;
+		
+		// Save button in current settings
+		this.current_settings["gamepad_button_" + this.settings_current_capture_key] = button_index;
+		
+		var el = q('.settings-gamepad-capture[data-buttontype="' + this.settings_current_capture_key + '"]');
+		this.settings_gamepad_capture_cancel(el);
+	}
 }

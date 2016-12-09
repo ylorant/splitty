@@ -13,6 +13,7 @@ function Timer()
 {
 	this.timer_name = "";
 	this.run_name = "";
+	this.hash = "";
 	this.start_delay = 0;
 	this.run_count = 0;
 	this.splits = [];
@@ -23,47 +24,31 @@ Timer.Type = { RTA: 0, MANUAL: 1 };
 
 Timer.exists = function(timer_name)
 {
-	if(typeof localStorage == "undefined")
+	if(!store.enabled)
 		return false;
 	
-	return typeof localStorage[timer_name] != "undefined";
+	var timers_names = Storage.get().get_names();
+	
+	for(var i in timers_names)
+	{
+		if(timers_names[i] == timer_name)
+			return true;
+	}
+	
+	return false;
 }
 
 Timer.prototype.save = function()
 {
-	if(typeof localStorage != 'undefined')
-	{
-		localStorage[this.timer_name] = JSON.stringify(this);
-		
-		var names = JSON.parse(localStorage.timer_names);
-		if(typeof names.pop == "undefined")
-			names = [];
-		
-		if(names.indexOf(this.timer_name) == -1)
-		{
-			names.push(this.timer_name);
-			localStorage.timer_names = JSON.stringify(names);
-		}
-	}
+	if(Storage.enabled())
+		Storage.get().set_timer(this);
 }
 
 Timer.prototype.delete = function()
 {
 	
-	if(typeof localStorage != 'undefined')
-	{
-		delete localStorage[this.timer_name];
-		var names = [];
-		
-		for(var i = 0; i < localStorage.length; i++)
-		{
-			var key = localStorage.key(i);
-			if(key != "timer_names")
-				names.push(key);
-		}
-		
-		localStorage.timer_names = JSON.stringify(names);
-	}
+	if(Storage.enabled())
+		Storage.get().delete_timer(this);
 }
 
 Timer.prototype.to_string = function()
@@ -112,18 +97,16 @@ Timer.prototype.compute_split_lengths = function()
 		else if(this.splits[i].pb_split == null)
 			this.splits[i].pb_duration = null;
 	}
-	 
-	// this.save();
 }
 
 Timer.load = function(timer_name)
 {
 	var new_timer = new Timer();
 
-	if(typeof localStorage != 'undefined' && typeof localStorage[timer_name] != 'undefined')
+	if(Storage.enabled())
 	{
 		// Load the raw data objects (not Timer objects)
-		var timer_obj = JSON.parse(localStorage[timer_name]);
+		var timer_obj = Storage.get().get_timer(timer_name);
 		
 		// Hydrate the timer properties
 		for(var k in timer_obj)
