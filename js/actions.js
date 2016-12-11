@@ -2,7 +2,6 @@ function Actions()
 {
 	Actions.instance = this;
 	this.updates = [];
-	this.interval_id = 0;
 	this.key_down = false;
 	this.table_pos = null;
 	this.split_scroll_status = 0;
@@ -104,7 +103,7 @@ Actions.prototype.init = function()
 	// Listen for gamepad button presses for splitting and things only when the page is on timer control	
 	$(document).on('pagechanged', function()
 	{
-		if(this.get_page() == "timer-control")
+		if(this.get_page() == "timer-control" && this.current_settings["use_gamepad"] === true)
 			this.gamepad.start_polling();
 		else
 			this.gamepad.stop_polling();
@@ -160,9 +159,10 @@ Actions.prototype.register_updates = function(object)
 		return false;
 	
 	this.updates.push(object);
-
+	
+	// Start the animationFrame loop if this is the first object we register updates for
 	if(this.updates.length == 1)
-		this.interval_id = setInterval(this.update.bind(this), 50);
+		window.requestAnimationFrame(this.update.bind(this));
 
 	return true;
 }
@@ -175,16 +175,19 @@ Actions.prototype.unregister_updates = function(object)
 		return false;
 
 	this.updates.splice(index, 1);
-
-	if(this.updates.length == 0)
-		clearInterval(this.interval_id);
-
+	
 	return true;
 }
 
-Actions.prototype.update = function(set_split_time)
+Actions.prototype.update = function(elapsed, set_split_time)
 {
 	set_split_time = typeof set_split_time != "undefined" ? set_split_time : false;
+	timer_res = window.current_run.started ? 1 : 3; // For the last update when the run stops, show 3 decimals.
+	
+	if(this.updates.length > 0)
+		window.requestAnimationFrame(this.update.bind(this));
+	else if(elapsed) // Allow manual calls, having elapsed at null, to continue
+		return;
 	
 	for(var update in this.updates)
 		this.updates[update].update();
@@ -196,23 +199,13 @@ Actions.prototype.update = function(set_split_time)
 		if(window.current_timer.splits[window.current_run.current_split].pb_split)
 			rel_split = window.current_run.elapsed - window.current_timer.splits[window.current_run.current_split].pb_split;
 		
-		$("#global-time").html(window.current_run.get_time(true, 1));
+		console.log(timer_res);
+		$("#global-time").html(window.current_run.get_time(true, timer_res));
 	
 		if(rel_split && (rel_split > 0 || set_split_time))
 		{
-			var rel_human = msec_to_time(rel_split, 1);
-			var rel_str = rel_split > 0 ? "+" : "-";
-			
-			if(rel_human.hr > 0)
-				rel_str += rel_human.hr + ":" + (rel_human.mn < 10 ? "0" : "");
-			if(rel_human.mn > 0)
-				rel_str += rel_human.mn + ":" + (rel_human.sec < 10 ? "0" : "") + rel_human.sec;
-			else
-				rel_str += rel_human.sec + "." + "<small>" + rel_human.ms + "</small>";
-			
 			var el = $($("#timer-splits tr")[window.current_run.current_split].querySelector(".time"));
-			
-			el.html(rel_str);
+			el.html(msec_to_string(rel_split, true, 1, true));
 		}
 		
 		if(set_split_time)
@@ -735,7 +728,6 @@ Actions.prototype.handle_gamepad_press = function(ev, button_index, button)
 	// Actions only work in the timer control view
 	if(this.get_page() == "timer-control")
 	{
-		console.log(button_index);
 		switch(button_index)
 		{
 			case this.current_settings["gamepad_button_split"]:
@@ -826,6 +818,7 @@ Actions.prototype.timer_start_split = function()
 	}
 	else
 	{
+		this.update();
 		$("#control-button-play span").text("Start");
 		$("#control-button-play i").removeClass("glyphicon-ok").removeClass("glyphicon-stop").addClass("glyphicon-play");
 		$("#control-button-reset span").text("Reset");
@@ -883,8 +876,8 @@ Actions.prototype.timer_stop_reset = function()
 {
 	if(window.current_run && window.current_run.started)
 	{
-		this.update();
 		window.current_run.stop();
+		this.update();
 		$("#control-button-reset span").text("Reset");
 		$("#control-button-reset i").removeClass("glyphicon-stop").addClass("glyphicon-refresh");
 		$("#control-button-play span").text("Restart");
@@ -973,7 +966,15 @@ Actions.prototype.timer_close_timer = function()
 
 Actions.prototype.settings_discard = function()
 {
-	this.current_settings = Storage.get().get_settings();
+	// Stop capturing
+	if(this.settings_current_capture_key)
+	{
+		var capture_button = q('.settings-gamepad-capture[data-buttontype="' + this.settings_current_capture_key + '"]');
+		this.settings_gamepad_capture_cancel(capture_button);
+	}
+	
+	// Reload the settings from the storage
+	this.refresh_settings();
 	
 	if(window.current_timer)
 		this.load_page("timer-control");
@@ -983,6 +984,9 @@ Actions.prototype.settings_discard = function()
 
 Actions.prototype.settings_save = function()
 {
+	var use_gamepad = q("#settings-gamepad-use").checked;
+	this.current_settings['use_gamepad'] = use_gamepad;
+	
 	Storage.get().set_settings(this.current_settings);
 	
 	if(window.current_timer)
@@ -1001,11 +1005,14 @@ Actions.prototype.settings_gamepad_change = function()
 	this.gamepad.set_gamepad(selected_gamepad_id);
 	this.current_settings.gamepad_id = selected_gamepad_id;
 	
-	$(".settings-gamepad-button").each(function(el)
+	// Disable or enable capture buttons if a gamepad has been selected
+	$(".settings-gamepad-capture").each(function(el)
 	{
-		this.current_settings["gamepad_button_" + el.dataset.buttontype] = null;
-		el.value = "";
-	}.bind(this));
+		if(selected_gamepad_id)
+			$(el).removeAttr('disabled');
+		else
+			$(el).attr('disabled', true);
+	});
 }
 
 Actions.prototype.settings_current_capture_key = null;
@@ -1028,7 +1035,7 @@ Actions.prototype.settings_gamepad_capture_toggle = function(el)
 	}
 	else // Disable key capture
 	{
-		var input = q('.settings-gamepad-button[data-buttontype="' + this.settings_current_capture_key + '"]');
+		var input = q('.settings-gamepad-button[data-buttontype="' + captured_key + '"]');
 		input.value = "";
 		this.settings_gamepad_capture_cancel(el);
 	}

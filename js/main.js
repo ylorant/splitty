@@ -70,25 +70,31 @@ function msec_to_time(time, res)
     return { hr: hours, mn: minutes, sec: seconds, ms: dseconds };
 }
 
-function msec_to_string(time, use_markup, res)
+function msec_to_string(time, use_markup, res, relative_time)
 {
     human_time = msec_to_time(time, res);
     var str = "";
     
     if(time < 0)
         str += "-";
+    else if(relative_time)
+        str += "+";
     
     if(human_time.hr > 0)
         str += human_time.hr + ":" + (human_time.mn < 10 ? "0" : "");
-    // if(human_time.mn > 0)
+    if(human_time.mn > 0 || !relative_time) // when time is shown relatively, strip the minutes if there is not
         str += human_time.mn + ":" + (human_time.sec < 10 ? "0" : "");
 
     if(res > 0)
     {
+        // Pad the ms number to reflect the significative numbers shown
+        var ms_length = human_time.ms.toString(10).length;
+        var shown_ms = "0".repeat(res - ms_length) + human_time.ms.toString(10);
+        
         if(use_markup)
-            str += human_time.sec + ".<small>" + human_time.ms + "</small>";
+            str += human_time.sec + ".<small>" + shown_ms + "</small>";
         else
-            str += human_time.sec + "." + human_time.ms;
+            str += human_time.sec + "." + shown_ms;
     }
     else
         str += human_time.sec;

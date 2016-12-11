@@ -29,8 +29,11 @@ Run.prototype.start = function()
 
 Run.prototype.split = function()
 {
+	if(!this.started)
+		return;
+		
 	this.split_times[this.current_split] = this.elapsed;
-	Actions.get_manager().update(true);
+	Actions.get_manager().update(null, true);
 	
 	var duration = this.split_times[this.current_split];
 	if(this.current_split > 0)
@@ -48,14 +51,20 @@ Run.prototype.split = function()
 	this.current_split++;
 	
 	if(this.current_split == this.timer.splits.length)
+	{
 		this.stop(false);
+		this.current_split--;
+	}
 }
 
 Run.prototype.split_manual = function(split_time)
 {
+	if(!this.started)
+		return;
+	
 	this.split_times[this.current_split] = this.elapsed + split_time;
 	this.elapsed += split_time;
-	Actions.get_manager().update(true);
+	Actions.get_manager().update(null, true);
 	
 	//Check for PB
 	if(this.timer.splits[this.current_split].split_best == null || split_time < this.timer.splits[this.current_split].split_best)
@@ -68,7 +77,10 @@ Run.prototype.split_manual = function(split_time)
 	this.current_split++;
 	
 	if(this.current_split == this.timer.splits.length)
+	{
 		this.stop(false);
+		this.current_split--; // Put conveniently the split at the last split to avoid out of range errors.
+	}
 }
 
 Run.prototype.prev_split = function()
