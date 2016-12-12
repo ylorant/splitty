@@ -182,7 +182,6 @@ Actions.prototype.unregister_updates = function(object)
 Actions.prototype.update = function(elapsed, set_split_time)
 {
 	set_split_time = typeof set_split_time != "undefined" ? set_split_time : false;
-	timer_res = window.current_run.started ? 1 : 3; // For the last update when the run stops, show 3 decimals.
 	
 	if(this.updates.length > 0)
 		window.requestAnimationFrame(this.update.bind(this));
@@ -199,8 +198,8 @@ Actions.prototype.update = function(elapsed, set_split_time)
 		if(window.current_timer.splits[window.current_run.current_split].pb_split)
 			rel_split = window.current_run.elapsed - window.current_timer.splits[window.current_run.current_split].pb_split;
 		
-		console.log(timer_res);
-		$("#global-time").html(window.current_run.get_time(true, timer_res));
+		final_time = !window.current_run.started; // Are we showing the final time or not
+		$("#global-time").html(window.current_run.get_time(true, final_time));
 	
 		if(rel_split && (rel_split > 0 || set_split_time))
 		{

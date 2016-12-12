@@ -130,10 +130,10 @@ Run.prototype.update = function()
 	this.elapsed = now.getTime() - this.start_time.getTime();
 }
 
-Run.prototype.get_time = function(use_markup, res)
+Run.prototype.get_time = function(use_markup, final_time)
 {
 	use_markup = use_markup || false;
-	res = res || 1;
+	res = final_time ? Math.max(0, 3 - Math.floor(this.elapsed / 3600000).toString().length + 1) : 1; // For each more digit we have over 1 hour, we reduce the number of shown decimal places
 
 	return msec_to_string(this.elapsed, use_markup, res);
 }
