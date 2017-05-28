@@ -58,6 +58,9 @@ Timer.prototype.to_string = function()
 
 Timer.prototype.save_splits = function(run)
 {
+    if(run === null || run === undefined)
+        return;
+    
 	for(var k in this.splits)
 	{
 		this.splits[k].pb_split = run.split_times[k];
@@ -72,9 +75,12 @@ Timer.prototype.save_splits = function(run)
 
 Timer.prototype.save_bests = function(run)
 {
+    if(run === null || run === ndeufined)
+        return;
+    
 	for(var k in this.splits)
 	{
-		if(run.best_splits[k] != null && (this.splits[k].split_best > run.best_splits[k] || this.splits[k].split_best == null))
+		if(run.best_splits[k] !== null && (this.splits[k].split_best > run.best_splits[k] || this.splits[k].split_best === null))
 			this.splits[k].split_best = run.best_splits[k];
 	}
 	

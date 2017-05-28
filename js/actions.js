@@ -592,18 +592,6 @@ Actions.prototype.edit_timer_submit = function()
 		return false;
 	}
 	
-	// Forbidden timer names
-	if(new_timer.timer_name == "timer_names")
-		return alert("You can't use this timer name.");
-	
-	// Before saving, check if the timer exists in the storage.
-	if(Timer.exists(new_timer.timer_name))
-	{
-		var confirmOverwrite = confirm("There is already a timer with this name. Do you really want to overwrite it ?");
-		if(!confirmOverwrite)
-			return;
-	}
-	
 	new_timer.save();
 	this.refresh_timer_list();
 	this.reset_timer_edit_form();

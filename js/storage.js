@@ -58,10 +58,9 @@ Storage.prototype.convert_old = function()
     }
     
     // Now that we have all the timers it's time to rewrite the storage
-    store.clear();
+    this.init();
     store.set('timers', timers);
     store.set('timers.names', new_timer_names);
-    store.set('settings', {});
 }
 
 /* Initialize storage */
@@ -101,7 +100,7 @@ Storage.prototype.get_names = function()
 /* Gets a timer from the storage */
 Storage.prototype.get_timer = function(hash)
 {
-    if(hash == null)
+    if(hash === null)
         return null;
     
     var timers = store.get('timers');
@@ -116,7 +115,7 @@ Storage.prototype.set_timer = function(timer)
     var timer_names = store.get('timers.names');
     
     // Define timer hash if it hasn't already been defined
-    if(typeof timer.hash != "string")
+    if(typeof timer.hash != "string" || timer.hash.length === 0)
     {
         do
         {
@@ -143,7 +142,7 @@ Storage.prototype.delete_timer = function(timer)
 {
     var hash = timer.hash;
     
-    if(hash == null)
+    if(hash === null)
         return false;
     
     var timers = store.get("timers");
