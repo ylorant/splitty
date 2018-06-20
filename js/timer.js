@@ -75,7 +75,7 @@ Timer.prototype.save_splits = function(run)
 
 Timer.prototype.save_bests = function(run)
 {
-    if(run === null || run === ndeufined)
+    if(run === null || run === undefined)
         return;
     
 	for(var k in this.splits)
